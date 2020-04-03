@@ -21,44 +21,15 @@ Desktop apps (both Desktop Bridge and classic Win32) can send interactive toast 
 
 If you haven't enabled the Windows 10 SDK for your Win32 app, you must do that first.
 
-Right click your project and select **Unload Project**.
-
-![Unloading a project](images/win32-unload-project.png)
-
-Then right click your project again, and select **Edit [projectname].csproj**
-
-![Editing a project](images/win32-edit-project.png)
-
-Below the existing `<TargetFrameworkVersion>` node, add a new `<TargetPlatformVersion>` node specifying your min version of Windows 10 supported. The actual SDK used will be the latest SDK that you have installed on your dev machine. This simply specifies your min allowed version (and allows you to reference the Windows SDK).
-
-```xml
-...
-<TargetFrameworkVersion>...</TargetFrameworkVersion>
-<TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
-...
-```
-
-Save your changes and then reload your project.
-
-![Reload a project](images/win32-reload-project.png)
+Install the `Microsoft.Windows.SDK.Contracts` [NuGet package](https://www.nuget.org/packages/Microsoft.Windows.SDK.Contracts) in your project.
 
 
-## Step 2: Reference the APIs
-
-Open the Reference Manager (right click project, select **Add -> Reference**), and select **Windows -> Core** and include the following references:
-
-* Windows.Data
-* Windows.UI
-
-![Reference manager](images/win32-add-windows-reference.png)
-
-
-## Step 3: Copy compat library code
+## Step 2: Copy compat library code
 
 Copy the [DesktopNotificationManagerCompat.cs file from GitHub](https://raw.githubusercontent.com/WindowsNotifications/desktop-toasts/master/CS/DesktopToastsApp/DesktopNotificationManagerCompat.cs) into your project. The compat library abstracts much of the complexity of desktop notifications. The following instructions require the compat library.
 
 
-## Step 4: Implement the activator
+## Step 3: Implement the activator
 
 You must implement a handler for toast activation, so that when the user clicks on your toast, your app can do something. This is required for your toast to persist in Action Center (since the toast could be clicked days later when your app is closed). This class can be placed anywhere in your project.
 
@@ -79,7 +50,7 @@ public class MyNotificationActivator : NotificationActivator
 ```
 
 
-## Step 5: Register with notification platform
+## Step 4: Register with notification platform
 
 Then, you must register with the notification platform. There are different steps depending on whether you are using the Desktop Bridge or classic Win32. If you support both, you must do both steps (however, no need to fork your code, our library handles that for you!).
 
@@ -135,7 +106,7 @@ If you're using classic Win32 (or if you support both), you have to declare your
 
 Pick a unique AUMID that will identify your Win32 app. This is typically in the form of [CompanyName].[AppName], but you want to ensure this is unique across all apps (feel free to add some digits at the end).
 
-#### Step 5.1: WiX Installer
+#### Step 4.1: WiX Installer
 
 If you're using WiX for your installer, edit the **Product.wxs** file to add the two shortcut properties to your Start menu shortcut as seen below. Be sure that your GUID from step #4 is enclosed in `{}` as seen below.
 
@@ -157,7 +128,7 @@ If you're using WiX for your installer, edit the **Product.wxs** file to add the
 > In order to actually use notifications, you must install your app through the installer once before debugging normally, so that the Start shortcut with your AUMID and CLSID is present. After the Start shortcut is present, you can debug using F5 from Visual Studio.
 
 
-#### Step 5.2: Register AUMID and COM server
+#### Step 4.2: Register AUMID and COM server
 
 Then, regardless of your installer, in your app's startup code (before calling any notification APIs), call the **RegisterAumidAndComServer** method, specifying your notification activator class from step #4 and your AUMID used above.
 
@@ -171,7 +142,7 @@ If you support both Desktop Bridge and classic Win32, feel free to call this met
 This method allows you to call the compat APIs to send and manage notifications without having to constantly provide your AUMID. And it inserts the LocalServer32 registry key for the COM server.
 
 
-## Step 6: Register COM activator
+## Step 5: Register COM activator
 
 For both Desktop Bridge and classic Win32 apps, you must register your notification activator type, so that you can handle toast activations.
 
@@ -183,7 +154,7 @@ DesktopNotificationManagerCompat.RegisterActivator<MyNotificationActivator>();
 ```
 
 
-## Step 7: Send a notification
+## Step 6: Send a notification
 
 Sending a notification is identical to UWP apps, except that you will use the **DesktopNotificationManagerCompat** class to create a **ToastNotifier**. The compat library automatically handles the difference between Desktop Bridge and classic Win32 so you do not have to fork your code. For classic Win32, the compat library caches your AUMID you provided when calling **RegisterAumidAndComServer** so that you don't need to worry about when to provide or not provide the AUMID.
 
@@ -232,7 +203,7 @@ DesktopNotificationManagerCompat.CreateToastNotifier().Show(toast);
 > Classic Win32 apps cannot use legacy toast templates (like ToastText02). Activation of the legacy templates will fail when the COM CLSID is specified. You must use the Windows 10 ToastGeneric templates as seen above.
 
 
-## Step 8: Handling activation
+## Step 7: Handling activation
 
 When the user clicks on your toast, the **OnActivated** method of your **NotificationActivator** class is invoked.
 
@@ -365,7 +336,7 @@ If your app is not running:
 For desktop apps, foreground and background activation is handled identically - your COM activator is called. It's up to your app's code to decide whether to show a window or to simply perform some work and then exit. Therefore, specifying an **ActivationType** of **Background** in your toast content doesn't change the behavior.
 
 
-## Step 9: Remove and manage notifications
+## Step 8: Remove and manage notifications
 
 Removing and managing notifications is identical to UWP apps. However, we recommend you use our compat library to obtain a **DesktopNotificationHistoryCompat** so you don't have to worry about providing the AUMID if you're using classic Win32.
 
@@ -378,7 +349,7 @@ DesktopNotificationManagerCompat.History.Clear();
 ```
 
 
-## Step 10: Deploying and debugging
+## Step 9: Deploying and debugging
 
 To deploy and debug your Desktop Bridge app, see [Run, debug, and test a packaged desktop app](/windows/uwp/porting/desktop-to-uwp-debug).
 
