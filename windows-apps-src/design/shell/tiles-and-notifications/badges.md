@@ -9,16 +9,16 @@ ms.topic: article
 keywords: windows 10, uwp
 ms.localizationpriority: medium
 ---
-# Badge notifications for Windows apps
+# Badges
 
  
 
 <div style="float:left; font-size:80%; text-align:left; margin: 0px 15px 15px 0px;">
-<img src="images/badge-example.png" alt="A tile with a numeric badge displaying the number 63 to indicate 63 unread mails." style="padding-bottom:0.0em; margin-bottom: 2px" /><br/>A tile with a numeric badge displaying<br/> the number 63 to indicate 63 unread mails.</div>
+<img src="images/badge-example.png" alt="A tile with a numeric badge displaying the number 63 to indicate 63 unread mails." style="padding-bottom:0.0em; margin-bottom: 2px" />
 
-A notification badge conveys summary or status information specific to your app. They can be numeric (1-99) or one of a set of system-provided glyphs. Examples of information best conveyed through a badge include network connection status in an online game, user status in a messaging app, number of unread mails in a mail app, and number of new posts in a social media app. 
+A badge conveys summary or status information specific to your app. They can be numeric (1-99) or one of a set of system-provided glyphs. Examples of information best conveyed through a badge include network connection status in an online game, user status in a messaging app, number of unread mails in a mail app, and number of new posts in a social media app. 
 
-Notification badges appear on your app's taskbar icon and in the lower-right corner of its start tile, regardless of whether the app is running. Badges can be displayed on all tile sizes.  
+Badges appear on your app's taskbar icon and in the lower-right corner of its start tile, regardless of whether the app is running. Badges can be displayed on all tile sizes.  
 
 > [!NOTE]
 > You cannot provide your own badge image; only system-provided badge images can be used.
@@ -120,72 +120,26 @@ Instead of a number, a badge can display one of a non-extensible set of status g
 </tr>
 </table>
 
-## Create a badge
+## Set a badge
 
-These examples show you how to create a badge update.
+These examples show you how to set a badge.
 
-### Create a numeric badge
+### Set a numeric badge
 
 ````csharp
-private void setBadgeNumber(int num)
-{
-
-    // Get the blank badge XML payload for a badge number
-    XmlDocument badgeXml = 
-        BadgeUpdateManager.GetTemplateContent(BadgeTemplateType.BadgeNumber);
-
-    // Set the value of the badge in the XML to our number
-    XmlElement badgeElement = badgeXml.SelectSingleNode("/badge") as XmlElement;
-    badgeElement.SetAttribute("value", num.ToString());
-
-    // Create the badge notification
-    BadgeNotification badge = new BadgeNotification(badgeXml);
-
-    // Create the badge updater for the application
-    BadgeUpdater badgeUpdater = 
-        BadgeUpdateManager.CreateBadgeUpdaterForApplication();
-
-    // And update the badge
-    badgeUpdater.Update(badge);
-
-}
+BadgeManager.Set(5);
 ````
 
-### Create a glyph badge
+### Set a glyph badge
+
 ````csharp
-private void updateBadgeGlyph()
-{
-    string badgeGlyphValue = "alert";
-
-    // Get the blank badge XML payload for a badge glyph
-    XmlDocument badgeXml = 
-        BadgeUpdateManager.GetTemplateContent(BadgeTemplateType.BadgeGlyph);
-
-    // Set the value of the badge in the XML to our glyph value
-    Windows.Data.Xml.Dom.XmlElement badgeElement = 
-        badgeXml.SelectSingleNode("/badge") as Windows.Data.Xml.Dom.XmlElement;
-    badgeElement.SetAttribute("value", badgeGlyphValue);
-
-    // Create the badge notification
-    BadgeNotification badge = new BadgeNotification(badgeXml);
-
-    // Create the badge updater for the application
-    BadgeUpdater badgeUpdater = 
-        BadgeUpdateManager.CreateBadgeUpdaterForApplication();
-
-    // And update the badge
-    badgeUpdater.Update(badge);
-
-}
+BadgeManager.Set(BadgeValue.Alert);
 ````
 
-### Clear a badge
+### Clear the badge
 
 ````csharp
-private void clearBadge()
-{
-    BadgeUpdateManager.CreateBadgeUpdaterForApplication().Clear();
-}
+BadgeManager.Clear();
 ````
 
 ## Get the sample code

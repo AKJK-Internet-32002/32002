@@ -1,5 +1,5 @@
 ---
-description: Use a progress bar inside your toast notification to convey the status of long-running operations to the user.
+Description: Learn how to use a progress bar within your toast notification.
 title: Toast progress bar and data binding
 label: Toast progress bar and data binding
 template: detail.hbs
@@ -17,7 +17,7 @@ Using a progress bar inside your toast notification allows you to convey the sta
 
 A progress bar inside a toast can either be "indeterminate" (no specific value, animated dots indicate an operation is occurring) or "determinate" (a specific percent of the bar is filled, like 60%).
 
-> **Important APIs**: [NotificationData class](/uwp/api/windows.ui.notifications.notificationdata), [ToastNotifier.Update method](/uwp/api/Windows.UI.Notifications.ToastNotifier.Update), [ToastNotification class](/uwp/api/Windows.UI.Notifications.ToastNotification)
+> **Important APIs**: [NotificationData class](https://docs.microsoft.com/uwp/api/windows.ui.notifications.notificationdata), [ToastNotifier.Update method](https://docs.microsoft.com/uwp/api/Windows.UI.Notifications.ToastNotifier.Update), [ToastNotification class](https://docs.microsoft.com/uwp/api/Windows.UI.Notifications.ToastNotification)
 
 > [!NOTE]
 > Only Desktop supports progress bars in toast notifications. On other devices, the progress bar will be dropped from your notification.
@@ -36,32 +36,22 @@ The picture below shows a determinate progress bar with all of its corresponding
 
 Here's how you would generate the notification seen above...
 
+#### [C#](#tab/csharp)
+
 ```csharp
-ToastContent content = new ToastContent()
-{
-    Visual = new ToastVisual()
+ToastContent content = new ToastContentBuilder()
+    .AddText("Downloading your weekly playlist...")
+    .AddVisualChild(new AdaptiveProgressBar()
     {
-        BindingGeneric = new ToastBindingGeneric()
-        {
-            Children =
-            {
-                new AdaptiveText()
-                {
-                    Text = "Downloading your weekly playlist..."
-                },
- 
-                new AdaptiveProgressBar()
-                {
-                    Title = "Weekly playlist",
-                    Value = 0.6,
-                    ValueStringOverride = "15/26 songs",
-                    Status = "Downloading..."
-                }
-            }
-        }
-    }
-};
+        Title = "Weekly playlist",
+        Value = 0.6,
+        ValueStringOverride = "15/26 songs",
+        Status = "Downloading..."
+    })
+    .GetToastContent();
 ```
+
+#### [XML](#tab/xml)
 
 ```xml
 <toast>
@@ -77,6 +67,8 @@ ToastContent content = new ToastContent()
     </visual>
 </toast>
 ```
+
+---
 
 However, you'll need to dynamically update the values of the progress bar for it to actually be "live". This can be done by using data binding to update the toast.
 
@@ -104,30 +96,16 @@ public void SendUpdatableToastWithProgress()
     string group = "downloads";
  
     // Construct the toast content with data bound fields
-    var content = new ToastContent()
-    {
-        Visual = new ToastVisual()
+    var content = new ToastContentBuilder()
+        .AddText("Downloading your weekly playlist...")
+        .AddVisualChild(new AdaptiveProgressBar()
         {
-            BindingGeneric = new ToastBindingGeneric()
-            {
-                Children =
-                {
-                    new AdaptiveText()
-                    {
-                        Text = "Downloading your weekly playlist..."
-                    },
-    
-                    new AdaptiveProgressBar()
-                    {
-                        Title = "Weekly playlist",
-                        Value = new BindableProgressBarValue("progressValue"),
-                        ValueStringOverride = new BindableString("progressValueString"),
-                        Status = new BindableString("progressStatus")
-                    }
-                }
-            }
-        }
-    };
+            Title = "Weekly playlist",
+            Value = new BindableProgressBarValue("progressValue"),
+            ValueStringOverride = new BindableString("progressValueString"),
+            Status = new BindableString("progressStatus")
+        })
+        .GetToastContent();
  
     // Generate the toast notification
     var toast = new ToastNotification(content.GetXml());
@@ -147,11 +125,11 @@ public void SendUpdatableToastWithProgress()
     toast.Data.SequenceNumber = 1;
  
     // Show the toast notification to the user
-    ToastNotificationManager.CreateToastNotifier().Show(toast);
+    ToastNotificationManagerCompat.CreateToastNotifier().Show(toast);
 }
 ```
 
-Then, when you want to change your **Data** values, use the [**Update**](/uwp/api/Windows.UI.Notifications.ToastNotifier.Update) method to provide the new data without re-constructing the entire toast payload.
+Then, when you want to change your **Data** values, use the [**Update**](https://docs.microsoft.com/uwp/api/Windows.UI.Notifications.ToastNotifier.Update) method to provide the new data without re-constructing the entire toast payload.
 
 ```csharp
 using Windows.UI.Notifications;
@@ -176,13 +154,13 @@ public void UpdateProgress()
     data.Values["progressValueString"] = "18/26 songs";
 
     // Update the existing notification's data by using tag/group
-    ToastNotificationManager.CreateToastNotifier().Update(data, tag, group);
+    ToastNotificationManagerCompat.CreateToastNotifier().Update(data, tag, group);
 }
 ```
 
 Using the **Update** method rather than replacing the entire toast also ensures that the toast notification stays in the same position in Action Center and doesn't move up or down. It would be quite confusing to the user if the toast kept jumping to the top of Action Center every few seconds while the progress bar filled!
 
-The **Update** method returns an enum, [**NotificationUpdateResult**](/uwp/api/windows.ui.notifications.notificationupdateresult), which lets you know whether the update succeeded or whether the notification couldn't be found (which means the user has likely dismissed your notification and you should stop sending updates to it). We do not recommend popping another toast until your progress operation has been completed (like when the download completes).
+The **Update** method returns an enum, [**NotificationUpdateResult**](https://docs.microsoft.com/uwp/api/windows.ui.notifications.notificationupdateresult), which lets you know whether the update succeeded or whether the notification couldn't be found (which means the user has likely dismissed your notification and you should stop sending updates to it). We do not recommend popping another toast until your progress operation has been completed (like when the download completes).
 
 
 ## Elements that support data binding

@@ -6,12 +6,12 @@ label: Send a local toast notification from desktop C# apps
 template: detail.hbs
 ms.date: 01/23/2018
 ms.topic: article
-keywords: windows 10, uwp, win32, desktop, toast notifications, send a toast, send local toast, desktop bridge, msix, sparse packages, C#, c sharp, toast notification, wpf, send toast notification wpf, send toast notification winforms, send toast notification c#, send notification wpf, send notification c#, toast notification wpf, toast notification c#
+keywords: windows 10, uwp, win32, desktop, toast notifications, send a toast, send local toast, desktop bridge, msix, sparse packages, C#, c sharp, toast notification, wpf
 ms.localizationpriority: medium
 ---
 # Send a local toast notification from desktop C# apps
 
-Desktop apps (including packaged [MSIX](/windows/msix/desktop/source-code-overview) apps, apps that use [sparse packages](/windows/apps/desktop/modernize/grant-identity-to-nonpackaged-apps) to obtain package identity, and classic non-packaged Win32 apps) can send interactive toast notifications just like Windows apps. However, there are a few special steps for desktop apps due to the different activation schemes and the potential lack of package identity if you're not using MSIX or sparse packages.
+Desktop apps (including packaged [MSIX](https://docs.microsoft.com/windows/msix/desktop/source-code-overview) apps, apps that use [sparse packages](https://docs.microsoft.com/windows/apps/desktop/modernize/grant-identity-to-nonpackaged-apps) to obtain package identity, and classic non-packaged Win32 apps) can send interactive toast notifications just like Windows apps. However, there are a few special steps for desktop apps due to the different activation schemes and the potential lack of package identity if you're not using MSIX or sparse packages.
 
 > [!IMPORTANT]
 > If you're writing a UWP app, please see the [UWP documentation](send-local-toast.md). For other desktop languages, please see [Desktop C++ WRL](send-local-toast-desktop-cpp-wrl.md).
@@ -52,15 +52,15 @@ public class MyNotificationActivator : NotificationActivator
 Then, you must register with the notification platform. There are different steps depending on whether you are using MSIX/sparse packages or classic Win32. If you support both, you must do both steps (however, no need to fork your code, our library handles that for you!).
 
 
-#### [MSIX/sparse packages](#tab/msix-sparse)
+### MSIX/sparse packages
 
-If you're using an [MSIX](/windows/msix/desktop/source-code-overview) or [sparse package](/windows/apps/desktop/modernize/grant-identity-to-nonpackaged-apps) (or if you support both), in your **Package.appxmanifest**, add:
+If you're using an [MSIX](https://docs.microsoft.com/windows/msix/desktop/source-code-overview) or [sparse package](https://docs.microsoft.com/windows/apps/desktop/modernize/grant-identity-to-nonpackaged-apps) (or if you support both), in your **Package.appxmanifest**, add:
 
 1. Declaration for **xmlns:com**
 2. Declaration for **xmlns:desktop**
 3. In the **IgnorableNamespaces** attribute, **com** and **desktop**
-4. **com:Extension** for the COM activator using the GUID from step #2. Be sure to include the `Arguments="-ToastActivated"` so that you know your launch was from a toast
-5. **desktop:Extension** for **windows.toastNotificationActivation** to declare your toast activator CLSID (the GUID from step #2).
+4. **com:Extension** for the COM activator using the GUID from step #4. Be sure to include the `Arguments="-ToastActivated"` so that you know your launch was from a toast
+5. **desktop:Extension** for **windows.toastNotificationActivation** to declare your toast activator CLSID (the GUID from step #3).
 
 **Package.appxmanifest**
 
@@ -98,15 +98,15 @@ If you're using an [MSIX](/windows/msix/desktop/source-code-overview) or [sparse
 ```
 
 
-#### [Classic Win32](#tab/classic)
+### Classic Win32
 
-If you're using classic Win32 (or if you support both), you have to declare your Application User Model ID (AUMID) and toast activator CLSID (the GUID from step #2) on your app's shortcut in Start.
+If you're using classic Win32 (or if you support both), you have to declare your Application User Model ID (AUMID) and toast activator CLSID (the GUID from step #3) on your app's shortcut in Start.
 
 Pick a unique AUMID that will identify your Win32 app. This is typically in the form of [CompanyName].[AppName], but you want to ensure this is unique across all apps (feel free to add some digits at the end).
 
-### Step 3.1: WiX Installer
+#### Step 3.1: WiX Installer
 
-If you're using WiX for your installer, edit the **Product.wxs** file to add the two shortcut properties to your Start menu shortcut as seen below. Be sure that your GUID from step #2 is enclosed in `{}` as seen below.
+If you're using WiX for your installer, edit the **Product.wxs** file to add the two shortcut properties to your Start menu shortcut as seen below. Be sure that your GUID from step #3 is enclosed in `{}` as seen below.
 
 **Product.wxs**
 
@@ -126,9 +126,9 @@ If you're using WiX for your installer, edit the **Product.wxs** file to add the
 > In order to actually use notifications, you must install your app through the installer once before debugging normally, so that the Start shortcut with your AUMID and CLSID is present. After the Start shortcut is present, you can debug using F5 from Visual Studio.
 
 
-### Step 3.2: Register AUMID and COM server
+#### Step 3.2: Register AUMID and COM server
 
-Then, regardless of your installer, in your app's startup code (before calling any notification APIs), call the **RegisterAumidAndComServer** method, specifying your notification activator class from step #2 and your AUMID used above.
+Then, regardless of your installer, in your app's startup code (before calling any notification APIs), call the **RegisterAumidAndComServer** method, specifying your notification activator class from step #3 and your AUMID used above.
 
 ```csharp
 // Register AUMID and COM server (for MSIX/sparse package apps, this no-ops)
@@ -139,14 +139,12 @@ If you support both MSIX/sparse package and classic Win32, feel free to call thi
 
 This method allows you to call the compat APIs to send and manage notifications without having to constantly provide your AUMID. And it inserts the LocalServer32 registry key for the COM server.
 
----
-
 
 ## Step 4: Register COM activator
 
 For both MSIX/sparse package and classic Win32 apps, you must register your notification activator type, so that you can handle toast activations.
 
-In your app's startup code, call the following **RegisterActivator** method, passing in your implementation of the **NotificationActivator** class you created in step #2. This must be called in order for you to receive any toast activations.
+In your app's startup code, call the following **RegisterActivator** method, passing in your implementation of the **NotificationActivator** class you created in step #3. This must be called in order for you to receive any toast activations.
 
 ```csharp
 // Register COM server and activator type
@@ -161,7 +159,7 @@ Sending a notification is identical to UWP apps, except that you will use the **
 > [!NOTE]
 > Install the [Notifications library](https://www.nuget.org/packages/Microsoft.Toolkit.Uwp.Notifications/) so that you can construct notifications using C# as seen below, instead of using raw XML.
 
-Make sure you use the **ToastContent** seen below (or the ToastGeneric template if you're hand-crafting XML) since the legacy Windows 8.1 toast notification templates will not activate your COM notification activator you created in step #2.
+Make sure you use the **ToastContent** seen below (or the ToastGeneric template if you're hand-crafting XML) since the legacy Windows 8.1 toast notification templates will not activate your COM notification activator you created in step #3.
 
 > [!IMPORTANT]
 > Http images are only supported in MSIX/sparse package apps that have the internet capability in their manifest. Classic Win32 apps do not support http images; you must download the image to your local app data and reference it locally.
@@ -332,7 +330,7 @@ DesktopNotificationManagerCompat.History.Clear();
 
 ## Step 8: Deploying and debugging
 
-To deploy and debug your MSIX app, see [Run, debug, and test a packaged desktop app](/windows/msix/desktop/desktop-to-uwp-debug).
+To deploy and debug your MSIX app, see [Run, debug, and test a packaged desktop app](/windows/uwp/porting/desktop-to-uwp-debug).
 
 To deploy and debug your classic Win32 app, you must install your app through the installer once before debugging normally, so that the Start shortcut with your AUMID and CLSID is present. After the Start shortcut is present, you can debug using F5 from Visual Studio.
 
@@ -353,3 +351,4 @@ If you've installed both your MSIX/sparse package and classic Win32 app, note th
 * [Full code sample on GitHub](https://github.com/WindowsNotifications/desktop-toasts)
 * [Toast notifications from desktop apps](toast-desktop-apps.md)
 * [Toast content documentation](adaptive-interactive-toasts.md)
+

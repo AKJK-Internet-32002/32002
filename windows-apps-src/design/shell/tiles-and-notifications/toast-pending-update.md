@@ -1,5 +1,5 @@
 ---
-description: Learn how to use toast with pending update activation to create multi-step interactions in your toast notifications.
+Description: Learn how to create multi-step interactions in your notifications.
 title: Toast with pending update activation
 label: Toast with pending update activation
 template: detail.hbs
@@ -43,6 +43,8 @@ To implement a toast that uses pending update as its after activation behavior..
 
 On your background activation buttons, set the **AfterActivationBehavior** to **PendingUpdate**. Note that this only works for buttons that have an **ActivationType** of **Background**.
 
+#### [C#](#tab/csharp)
+
 ```csharp
 new ToastButton("Yes", "action=orderLunch")
 {
@@ -55,6 +57,8 @@ new ToastButton("Yes", "action=orderLunch")
 }
 ```
 
+#### [XML](#tab/xml)
+
 ```xml
 <action
     content='Yes'
@@ -62,6 +66,8 @@ new ToastButton("Yes", "action=orderLunch")
     activationType='background'
     afterActivationBehavior='pendingUpdate' />
 ```
+
+---
 
 
 ## Use a Tag on the notification
@@ -76,7 +82,7 @@ var notif = new ToastNotification(content.GetXml())
 };
 
 // And show it
-ToastNotificationManager.CreateToastNotifier().Show(notif);
+ToastNotificationManagerCompat.CreateToastNotifier().Show(notif);
 ```
 
 
@@ -104,7 +110,7 @@ var notif = new ToastNotification(content.GetXml())
 };
 
 // And replace the old one with this one
-ToastNotificationManager.CreateToastNotifier().Show(notif);
+ToastNotificationManagerCompat.CreateToastNotifier().Show(notif);
 ```
 
 
