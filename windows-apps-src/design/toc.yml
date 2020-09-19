@@ -419,6 +419,8 @@
           href: shell/tiles-and-notifications/tile-toast-language-scale-contrast.md
     - name: Misc
       items:
+      - name: Reunion comparison
+        href: shell/tiles-and-notifications/reunion-comparison.md
       - name: Notifications Visualizer
         href: shell/tiles-and-notifications/notifications-visualizer.md
       - name: Notification delivery methods
