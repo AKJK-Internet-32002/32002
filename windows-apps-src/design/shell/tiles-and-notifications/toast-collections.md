@@ -23,123 +23,106 @@ When creating each collection, you are required to provide a display name and an
 ### Create a collection
 
 ``` csharp 
-public const string toastCollectionId = "ToastCollection";
+public const string notificationCollectionId = "workEmail";
 
-// Create a toast collection
-public async void CreateToastCollection()
+// Create a notification collection
+public async void CreateNotificationCollection()
 {
 	string displayName = "Work Email"; 
 	string launchArg = "NavigateToWorkEmailInbox"; 
 	Uri icon = new Windows.Foundation.Uri("ms-appx:///Assets/workEmail.png");
 
 	// Constructor
-	ToastCollection workEmailToastCollection = new ToastCollection(MainPage.toastCollectionId, 
+	NotificationCollection workEmailNotifCollection = new NotificationCollection(
+		notificationCollectionId, 
 		displayName,
  		launchArg, 
 		icon);
 
 	// Calls the platform to create the collection
-	await ToastNotificationManager.GetDefault().GetToastCollectionManager().SaveToastCollectionAsync(workEmailToastCollection);  								
+	await NotificationManager.GetCollectionManager().SaveCollectionAsync(workEmailNotifCollection);  								
 }
 ```
 
 ## Sending notifications to a collection
 We will cover sending notifications from three different toast pipelines: local, scheduled, and push.  For each of these examples we will be creating a sample toast to send with the code immediately below, then we will focus on how to add the toast to a collection via each pipeline.
 
-Construct the notification payload:
-
-``` csharp
-public const string toastCollectionId = "MyToastCollection";
-
-public async void SendToastToToastCollection()
-{
-	// Construct the notification Content
-	string toastXmlString = 
-		$@"<toast launch=’’>
-			<visual>
-				<binding template=’ToastGeneric’>
-					<text>Hello,</text>
-					<text>it’s me</text>
-				</binding>
-			</visual>
-		</toast>";
-	// Convert to XML
-	XmlDocument toastXml = new XmlDocment();
-	toastXml.LoadXml(toastXmlString);
-	ToastNotification toast = new ToastNotification(toastXml);
-```
-
 ### Send a toast to a collection
 
-```csharp
-// Get the collection notifier
-var notifier = await ToastNotificationManager.GetDefault().GetToastNotifierForToastCollectionIdAsync(MainPage.toastCollectionId);
+``` csharp
+const string notifCollectionId = "workEmail";
 
-// And show the toast
-notifier.Show(toast);
+await new NotificationBuilder()
+    .SetLaunchArgs("workEmailMessage1")
+    .AddText("New email from team")
+    .AddText("Morale ideas!")
+    .ShowAsync(notifCollectionId);
 ```
 
-### Add a scheduled toast to a collection
+### Add a scheduled notification to a collection
 
 ``` csharp
-// Create scheduled toast from XML above
-ScheduledToastNotification scheduledToast = new ScheduledToastNotification(toastXml, DateTimeOffset.Now.AddSeconds(10));
+const string notifCollectionId = "workEmail";
 
-// Get notifier
-var notifier = await ToastNotificationManager.GetDefault().GetToastNotifierForToastCollectionIdAsync(MainPage.toastCollectionId);
-    
-// Add to schedule
-notifier.AddToSchedule(scheduledToast);
+await new NotificationBuilder()
+    .SetLaunchArgs("workEmailMessage1")
+    .AddText("New email from team")
+    .AddText("Morale ideas!")
+    .ScheduleAsync(DateTime.Now.AddSeconds(5), notifCollectionId);
 ```
 
-### Send a push toast to a collection
-For push toasts, you need to add the X-WNS-CollectionId header to the POST message.
-```csharp
-// Add header to HTTP request
-request.Headers.Add("X-WNS-CollectionId", collectionId); 
+### Send a push notification to a collection
 
+For push notifications, include the collection ID when sending the notification.
+
+```csharp
+const string notifCollectionId = "workEmail";
+
+await new NotificationBuilder()
+    .SetLaunchArgs("workEmailMessage1")
+    .AddText("New email from team")
+    .AddText("Morale ideas!")
+    .SendAsync(channelUri, notifCollectionId);
 ```
 
 ## Managing collections
 #### Create the toast collection manager
 For the rest of the code snippets in this 'Managing Collections' section we will be using the collectionManager below.
 ```csharp
-ToastCollectionManger collectionManager = ToastNotificationManager.GetDefault().GetToastCollectionManager();
+NotificationCollectionManger collectionManager = NotificationManager.GetCollectionManager();
 ```
 
 #### Get all collections
 
 ``` csharp
-IReadOnlyList<ToastCollection> collections = await collectionManager.FindAllToastCollectionsAsync();
-``` 
-
-#### Get the number of collections created
-
-``` csharp
-int toastCollectionCount = (await collectionManager.FindAllToastCollectionsAsync()).Count;
+IReadOnlyList<NotificationCollection> collections = await collectionManager.FindAllAsync();
 ```
 
 #### Remove a collection
 
 ``` csharp
-await collectionManager.RemoveToastCollectionAsync(MainPage.toastCollectionId);
+const string notifCollectionId = "workEmail";
+
+await collectionManager.RemoveAsync(notifCollectionId);
 ```
 
 #### Update a collection
 You can update collections by creating a new collection with the same ID and saving the new instance of the collection.
 ``` csharp
+const string notifCollectionId = "workEmail";
 string displayName = "Updated Display Name"; 
 string launchArg = "UpdatedLaunchArgs"; 
 Uri icon = new Windows.Foundation.Uri("ms-appx:///Assets/updatedPicture.png");
 
-// Construct a new toast collection with the same collection id
-ToastCollection updatedToastCollection = new ToastCollection(MainPage.toastCollectionId, 
- 			displayName,
- 			launchArg, 
- 			icon);
+// Construct a new collection with the same collection id
+NotificationCollection updatedCollection = new NotificationCollection(
+	notifCollectionId, 
+	displayName,
+	launchArg, 
+	icon);
 
 // Calls the platform to update the collection by saving the new instance
-await collectionManager.SaveToastCollectionAsync(updatedToastCollection);  								
+await collectionManager.SaveAsync(updatedCollection);  								
 ```
 ## Managing toasts within a collection
 #### Group and tag properties
