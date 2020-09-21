@@ -13,6 +13,24 @@ ms.localizationpriority: medium
 
 This is a comparison of the APIs in the platform today, and the proposed Reunion APIs.
 
+## Quick reference
+
+A quick reference of how existing platform APIs map to new Reunion APIs.
+
+Platform API | Reunion API
+--|--
+AdaptiveNotificationContentKind (enum) | ??
+AdaptiveNotificationText (class) | ??
+BadgeNotification (class) | BadgeManager.Set(value)
+BadgeTemplateType (enum) | N/A
+BadgeUpdateManager.CreateBadgeUpdaterForApplication() | BadgeManager.Set(value), etc
+BadgeUpdateManager.CreateBadgeUpdaterForApplication(string appId) | Not supported (only MAPs)
+BadgeUpdateManager.GetForUser(User user) | BadgeManager.Set(user, value), etc
+BadgeUpdateManager.GetTemplateContent | N/A
+BadgeUpdateManager.CreateBadgeUpdaterForSecondaryTile(string tileId) | BadgeManager.Set("tileId", value), etc
+BadgeUpdateManagerForUser.CreateBadgeUpdaterForSecondaryTile(string tileId) | BadgeManager.Set(user, "tileId", value), etc
+
+
 ## Notification APIs
 
 ### Send a notification
@@ -229,6 +247,279 @@ BadgeManager.StartPeriodicUpdate(uri, PeriodicUpdateInterval.Daily);
 
 // Stopping updates
 BadgeManager.StopPeriodicUpdate();
+```
+
+---
+
+
+## Primary tile updates
+
+### Update the primary tile
+
+#### [Platform](#tab/platform)
+
+```csharp
+const string xml = @"<tile>
+    <visual>
+        <binding template=""TileMedium"">
+            <text></text>
+        </binding>
+    </visual>
+</tile>";
+
+XmlDocument doc = new XmlDocument();
+doc.LoadXml(xml);
+
+// Have to use XmlDocument APIs to inject any text from users since it must be properly XML escaped
+(doc.SelectSingleNode("//text") as XmlElement).InnerText = "Hello world";
+
+TileUpdateManager.CreateTileUpdaterForApplication().Update(new TileNotification(doc));
+```
+
+#### [Reunion](#tab/reunion)
+
+```csharp
+new TileContentBuilder()
+    .AddText("Hello world")
+    .Update();
+```
+
+---
+
+
+### Clear the tile
+
+```csharp
+TileUpdateManager.CreateTileUpdaterForApplication().Clear();
+```
+
+#### [Reunion](#tab/reunion)
+
+```csharp
+TileManager.ClearContent();
+```
+
+---
+
+
+### Enable content queues
+
+#### [Platform](#tab/platform)
+
+```csharp
+// Enable for all sizes
+TileUpdateManager.CreateTileUpdaterForApplication().EnableNotificationQueue(true);
+
+// Enable for medium
+TileUpdateManager.CreateTileUpdaterForApplication().EnableNotificationQueueForSquare150x150(true);
+
+// Enable for large
+TileUpdateManager.CreateTileUpdaterForApplication().EnableNotificationQueueForSquare310x310(true);
+
+// Enable for wide
+TileUpdateManager.CreateTileUpdaterForApplication().EnableNotificationQueueForWide310x150(true);
+```
+
+#### [Reunion](#tab/reunion)
+
+```csharp
+/// Enable for all sizes
+TileManager.SetContentQueueEnabled(true);
+
+// Enable for medium
+TileManager.SetContentQueueEnabledForMediumSize(true);
+
+// Enable for large
+TileManager.SetContentQueueEnabledForLargeSize(true);
+
+// Enable for wide
+TileManager.SetContentQueueEnabledForWideSize(true);
+```
+
+---
+
+
+## Secondary tile updates
+
+### Update the secondary tile
+
+#### [Platform](#tab/platform)
+
+```csharp
+const string xml = @"<tile>
+    <visual>
+        <binding template=""TileMedium"">
+            <text></text>
+        </binding>
+    </visual>
+</tile>";
+
+XmlDocument doc = new XmlDocument();
+doc.LoadXml(xml);
+
+// Have to use XmlDocument APIs to inject any text from users since it must be properly XML escaped
+(doc.SelectSingleNode("//text") as XmlElement).InnerText = "Hello world";
+
+TileUpdateManager.CreateTileUpdaterForSecondaryTile("tileId").Update(new TileNotification(doc));
+```
+
+#### [Reunion](#tab/reunion)
+
+```csharp
+new TileContentBuilder()
+    .AddText("Hello world")
+    .Update("tileId");
+```
+
+---
+
+
+### Enable content queues
+
+#### [Platform](#tab/platform)
+
+```csharp
+// Enable for all sizes
+TileUpdateManager.CreateTileUpdaterForSecondaryTile("tileId").EnableNotificationQueue(true);
+
+// Enable for medium
+TileUpdateManager.CreateTileUpdaterForSecondaryTile("tileId").EnableNotificationQueueForSquare150x150(true);
+
+// Enable for large
+TileUpdateManager.CreateTileUpdaterForSecondaryTile("tileId").EnableNotificationQueueForSquare310x310(true);
+
+// Enable for wide
+TileUpdateManager.CreateTileUpdaterForSecondaryTile("tileId").EnableNotificationQueueForWide310x150(true);
+```
+
+#### [Reunion](#tab/reunion)
+
+```csharp
+/// Enable for all sizes
+TileManager.SetQueueEnabled("tileId", true);
+
+// Enable for medium
+TileManager.SetQueueEnabledForMediumSize("tileId", true);
+
+// Enable for large
+TileManager.SetQueueEnabledForLargeSize("tileId", true);
+
+// Enable for wide
+TileManager.SetQueueEnabledForWideSize("tileId", true);
+```
+
+---
+
+
+
+## Secondary tiles
+
+### Create a secondary tile
+
+```csharp
+SecondaryTile tile = new SecondaryTile(
+    "tileId",
+    "Display name",
+    "args",
+    new Uri("ms-appx:///TileLogo.png"),
+    TileSize.Default);
+
+await tile.RequestCreateAsync();
+```
+
+#### [Reunion](#tab/reunion)
+
+```csharp
+// TODO: Need different name for "SecondaryTile" otherwise class name collisions
+SecondaryTile tile = new SecondaryTile(
+    "tileId",
+    "Display name",
+    "args",
+    new Uri("ms-appx:///TileLogo.png"),
+    TileSize.Default);
+
+await TileManager.PinAsync(tile);
+```
+
+---
+
+## ForUser and secondary tiles
+
+Technically the heirarcy is like this...
+
+* User (1-many)
+    * AppListEntry (1-many)
+        * Primary notification collection
+            * Notifications
+        * Secondary notification collections
+            * Notifications
+        * Primary tile
+            * Badge
+            * Tile content
+        * Secondary tiles
+            * Badge
+            * Tile content
+
+99% of apps aren't MUA-enabled (multi-user apps) nor MAP (multi-app packages). Thus, their world view is simply
+
+* Notifications
+* Notification collections
+    * Notifications
+* Primary tile
+    * Badge
+    * Tile content
+* Secondary tiles
+    * Badge
+    * Tile content
+
+
+Many apps also don't care about secondary tiles or notification collections, so their world view is simply
+
+* Notifications
+* Badge
+* Tile content
+
+
+Should we design for this case, yet make the other cases possible?
+
+
+#### [Simplified](#tab/simplified)
+
+```csharp
+// Clearing notifications is a simple one-line
+NotificationManager.Clear();
+
+// However, if you use collections and/or multi users, clearing is a bit different... and we possibly have a bunch of overloads
+NotificationManager.Clear(user, "collectionId");
+NotificationManager.Clear("collectionId");
+
+// And note that you then can't have generic code perform operations on either the primary or a secondary collection (see other tab for example)
+```
+
+#### [Expressive](#tab/expressive)
+
+```csharp
+// Clearing notifications is a bit lengthier (first have to get per-user manager, then get the collection manager)
+NotificationManager.GetDefault().PrimaryCollection.Clear();
+
+// However, if you use collections and/or multi users, APIs are more intuitive
+NotificationManager.GetForUser(user).GetCollection("collectionId").Clear();
+
+// Additionally, you can have methods that can generically act on either the primary or secondary collection
+RemoveObsoleteNotifs(NotificationManager.GetDefault().PrimaryCollection);
+RemoveObsoleteNotifs(NotificationManager.GetForUser(user).GetCollection("collectionId"));
+
+private void RemoveObsoleteNotifs(NotificationCollection collection)
+{
+    var notifs = collection.GetNotifications();
+    foreach (var n in notifs)
+    {
+        if (IsObsolete(n))
+        {
+            collection.Remove(n);
+        }
+    }
+}
 ```
 
 ---
