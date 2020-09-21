@@ -131,6 +131,7 @@ NotificationManager.Clear();
 IReadOnlyList<Notification> notifs = NotificationManager.GetNotifications();
 ```
 
+---
 
 
 ### Schedule a notification
@@ -161,6 +162,73 @@ ToastNotificationManager.CreateToastNotifier().AddToSchedule(scheduledNotif);
 new NotificationBuilder()
     .AddText("Hello world")
     .Schedule(DateTime.Now.AddSeconds(5));
+```
+
+---
+
+
+## Badges
+
+### Setting and clearing badges
+
+#### [Platform](#tab/platform)
+
+```csharp
+// Set badge to 5
+var doc = BadgeUpdateManager.GetTemplateContent(BadgeTemplateType.BadgeNumber);
+doc.DocumentElement.SetAttribute("value", 5.ToString());
+
+BadgeUpdateManager.CreateBadgeUpdaterForApplication().Update(new BadgeNotification(doc));
+
+// Set badge to alarm glyph
+var doc = BadgeUpdateManager.GetTemplateContent(BadgeTemplateType.BadgeGlyph);
+doc.DocumentElement.SetAttribute("value", "alarm");
+
+BadgeUpdateManager.CreateBadgeUpdaterForApplication().Update(new BadgeNotification(doc));
+
+// Clear badge
+BadgeUpdateManager.CreateBadgeUpdaterForApplication().Clear();
+```
+
+#### [Reunion](#tab/reunion)
+
+```csharp
+// Set badge to 5
+BadgeManager.Set(5);
+
+// Set badge to alarm glyph
+BadgeManager.Set(BadgeValue.Alarm);
+
+// Clear badge
+BadgeManager.Clear();
+```
+
+---
+
+
+
+### Periodic badge updates
+
+#### [Platform](#tab/platform)
+
+```csharp
+Uri uri = new Uri("https://myapp.com/badgevalues");
+
+// Starting updates
+BadgeUpdateManager.CreateBadgeUpdaterForApplication().StartPeriodicUpdate(uri, PeriodicUpdateRecurrence.Daily);
+
+// Stopping updates
+BadgeUpdateManager.CreateBadgeUpdaterForApplication().StopPeriodicUpdate();
+```
+
+#### [Reunion](#tab/reunion)
+
+```csharp
+// Starting updates
+BadgeManager.StartPeriodicUpdate(uri, PeriodicUpdateInterval.Daily);
+
+// Stopping updates
+BadgeManager.StopPeriodicUpdate();
 ```
 
 ---
