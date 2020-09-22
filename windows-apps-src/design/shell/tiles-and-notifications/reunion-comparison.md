@@ -289,6 +289,8 @@ new TileContentBuilder()
 
 ### Clear the tile
 
+#### [Platform](#tab/platform)
+
 ```csharp
 TileUpdateManager.CreateTileUpdaterForApplication().Clear();
 ```
