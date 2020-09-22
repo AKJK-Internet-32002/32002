@@ -416,6 +416,8 @@ TileManager.SetQueueEnabledForWideSize("tileId", true);
 
 ### Create a secondary tile
 
+#### [Platform](#tab/platform)
+
 ```csharp
 SecondaryTile tile = new SecondaryTile(
     "tileId",
