@@ -55,6 +55,26 @@ doc.LoadXml(xml);
 ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(doc));
 ```
 
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+```csharp
+var content = new ToastContentBuilder()
+    .AddText("Hello world")
+    .GetToastContent();
+
+var notif = new ToastNotification(content.GetXml());
+
+ToastNotificationManager.CreateToastNotifier().Show(notif);
+```
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+```csharp
+new ToastContentBuilder()
+    .AddText("Hello world")
+    .Show();
+```
+
 #### [Reunion](#tab/reunion)
 
 ```csharp
@@ -93,6 +113,42 @@ ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(doc)
 });
 ```
 
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+```csharp
+var content = new ToastContentBuilder()
+    .AddText("Hello world")
+    .GetToastContent();
+
+var notif = new ToastNotification(content.GetXml())
+{
+    Tag = "tag",
+    Group = "group",
+    ExpirationTime = DateTime.Now.AddMinutes(3),
+    ExpiresOnReboot = true,
+    Priority = ToastNotificationPriority.High,
+    SuppressPopup = true
+};
+
+ToastNotificationManager.CreateToastNotifier().Show(notif);
+```
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+```csharp
+new ToastContentBuilder()
+    .AddText("Hello world")
+    .Show(toast =>
+    {
+        toast.Tag = "tag";
+        toast.Group = "group";
+        toast.ExpirationTime = DateTime.Now.AddMinutes(3);
+        toast.ExpiresOnReboot = true;
+        toast.Priority = ToastNotificationPriority.High;
+        toast.SuppressPopup = true;
+    });
+```
+
 #### [Reunion](#tab/reunion)
 
 ```csharp
@@ -128,6 +184,25 @@ ToastNotificationManager.History.Clear();
 
 // Get all current notifications
 IReadOnlyList<ToastNotification> notifs = ToastNotificationManager.History.GetHistory();
+```
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+```csharp
+// Remove specific notification by tag
+ToastNotificationManagerCompat.History.Remove("tag");
+
+// Remove specific notification by composite ID of both tag and group
+ToastNotificationManagerCompat.History.Remove("tag", "group");
+
+// Remove all notifications under group
+ToastNotificationManagerCompat.History.RemoveGroup("tag", "group");
+
+// Clear all notifications
+ToastNotificationManagerCompat.History.Clear();
+
+// Get all current notifications
+IReadOnlyList<ToastNotification> notifs = ToastNotificationManagerCompat.History.GetHistory();
 ```
 
 #### [Reunion](#tab/reunion)
@@ -172,6 +247,26 @@ doc.LoadXml(xml);
 var scheduledNotif = new ScheduledToastNotification(DateTime.Now.AddSeconds(5), doc);
 
 ToastNotificationManager.CreateToastNotifier().AddToSchedule(scheduledNotif);
+```
+
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+```csharp
+var content = new ToastContentBuilder()
+    .AddText("Hello world")
+    .GetToastContent();
+
+var scheduledNotif = new ScheduledToastNotification(DateTime.Now.AddSeconds(5), content.GetXml());
+
+ToastNotificationManager.CreateToastNotifier().AddToSchedule(notif);
+```
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+```csharp
+new ToastContentBuilder()
+    .AddText("Hello world")
+    .Schedule(DateTime.Now.AddSeconds(5));
 ```
 
 #### [Reunion](#tab/reunion)
