@@ -31,9 +31,19 @@ Install the **unlisted** [Reunion NuGet package](https://www.nuget.org/packages/
 
 ## Step 2: Add namespace declarations
 
+#### [C#](#tab/csharp)
+
 ```csharp
-using Microsoft.UI.Notifications; // Reunion library
+using Microsoft.UI.Notifications;
 ```
+
+#### [C++](#tab/cpp)
+
+```cpp
+using namespace Microsoft::UI::Notifications;
+```
+
+---
 
 
 ## Step 3: Send a notification
@@ -44,6 +54,7 @@ We'll start with a simple text-based notification. Construct the notification co
 
 <img alt="Simple text notification" src="images/send-toast-01.png" width="364"/>
 
+#### [C#](#tab/csharp)
 
 ```csharp
 // Construct the content and show the notification!
@@ -53,6 +64,19 @@ new NotificationBuilder()
     .AddText("Check this out, Happy Canyon in Utah!")
     .Show();
 ```
+
+#### [C++](#tab/cpp)
+
+```cpp
+// Construct the content and show the notification!
+ref new NotificationBuilder()
+    ->SetLaunchArgs("picOfHappyCanyon")
+    ->AddText("Andrew sent you a picture")
+    ->AddText("Check this out, Happy Canyon in Utah!")
+    ->Show();
+```
+
+---
 
 > [!IMPORTANT]
 > Win32 non-MSIX/sparse apps must use the **Show** method as seen above. If you use **ToastNotificationManager** itself, you will receive an element not found exception. All types of apps can use the Show method and it will work correctly.
@@ -64,7 +88,7 @@ new NotificationBuilder()
 The steps for handling activation differ for UWP, Win32 MSIX, and Win32 or sparse apps.
 
 
-#### [UWP](#tab/uwp)
+#### [UWP](#tab/uwp/csharp)
 
 When the user clicks your notification (or a button on the notification with foreground activation), your app's **App.xaml.cs** **OnActivated** will be invoked.
 
@@ -81,6 +105,34 @@ protected override void OnActivated(IActivatedEventArgs e)
 
         // Obtain any user input (text boxes, menu selections) from the notification
         ValueSet userInput = toastActivationArgs.UserInput;
+ 
+        // TODO: Show the corresponding content
+    }
+}
+```
+
+> [!IMPORTANT]
+> You must initialize your frame and activate your window just like your **OnLaunched** code. **OnLaunched is NOT called if the user clicks on your toast**, even if your app was closed and is launching for the first time. We often recommend combining **OnLaunched** and **OnActivated** into your own `OnLaunchedOrActivated` method since the same initialization needs to occur in both.
+
+#### [UWP](#tab/uwp/cpp)
+
+When the user clicks your notification (or a button on the notification with foreground activation), your app's **App.xaml.cpp** **OnActivated** will be invoked.
+
+**App.xaml.cpp**
+
+```csharp
+void App::OnActivated(IActivatedEventArgs^ e)
+{
+    // Handle notification activation
+    if (e->Kind == ActivationKind::ToastNotification)
+    {
+        ToastNotificationActivatedEventArgs^ toastActivationArgs = (ToastNotificationActivatedEventArgs^)e;
+
+        // Obtain the arguments from the notification
+        auto args = toastActivationArgs->Argument;
+
+        // Obtain any user input (text boxes, menu selections) from the notification
+        auto userInput = toastActivationArgs->UserInput;
  
         // TODO: Show the corresponding content
     }
@@ -219,9 +271,15 @@ You don't need to do anything! When UWP apps are uninstalled, all notifications 
 
 You don't need to do anything! When MSIX apps are uninstalled, all notifications and any other related resources are automatically cleaned up.
 
-#### [Win32 or sparse](#tab/win32)
+#### [Win32 or sparse](#tab/win32/csharp)
 
 If your app has an uninstaller, in your uninstaller you should call `AppLifecycle.Uninstall()`. If your app is a "portable app" without an installer, consider calling this method upon app exit unless you have notifications that are meant to persist after your app is closed.
+
+The uninstall method will clean up any scheduled and current notifications, remove any associated registry values, and remove any associated temporary files that were created by the library.
+
+#### [Win32 or sparse](#tab/win32/cpp)
+
+If your app has an uninstaller, in your uninstaller you should call `AppLifecycle->Uninstall()`. If your app is a "portable app" without an installer, consider calling this method upon app exit unless you have notifications that are meant to persist after your app is closed.
 
 The uninstall method will clean up any scheduled and current notifications, remove any associated registry values, and remove any associated temporary files that were created by the library.
 
