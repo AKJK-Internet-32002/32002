@@ -47,7 +47,7 @@ The toast content is defined in raw XML, but you can use our [NuGet library](htt
 
 ```csharp
 new ToastContentBuilder()
-    .AddToastActivationInfo("app-defined-string", ToastActivationType.Foreground)
+    .AddToastActivationInfo("app-defined-string")
     .AddText("Some text")
     .AddButton("Archive", ToastActivationType.Background, "archive")
     .AddAudio(new Uri("ms-appx:///Sound.mp3"));

@@ -15,7 +15,7 @@ You can use **PendingUpdate** to create multi-step interactions in your toast no
 ![Toast with pending update](images/toast-pendingupdate.gif)
 
 > [!IMPORTANT]
-> **Requires Desktop Fall Creators Update and 2.0.0 of Notifications library**: You must be running Desktop build 16299 or higher to see pending update work. You must use version 2.0.0 or higher of the [UWP Community Toolkit Notifications NuGet library](https://www.nuget.org/packages/Microsoft.Toolkit.Uwp.Notifications/) to assign **PendingUpdate** on your buttons. **PendingUpdate** is only supported on Desktop and will be ignored on other devices.
+> **Requires Desktop Fall Creators Update and 7.0.0 of Notifications library**: You must be running Desktop build 16299 or higher to see pending update work. You must use version 7.0.0 or higher of the [UWP Community Toolkit Notifications NuGet library](https://www.nuget.org/packages/Microsoft.Toolkit.Uwp.Notifications/) to assign **PendingUpdate** on your buttons. **PendingUpdate** is only supported on Desktop and will be ignored on other devices.
 
 
 ## Prerequisites
@@ -91,14 +91,25 @@ new ToastContentBuilder()
 In order to later replace the notification, we have to assign the **Tag** (and optionally the **Group**) on the notification.
 
 ```csharp
-// Create the notification
-var notif = new ToastNotification(content.GetXml())
-{
-    Tag = "lunch"
-};
+// Create and show the notification
+new ToastContentBuilder()
 
-// And show it
-ToastNotificationManager.CreateToastNotifier().Show(notif);
+    .AddText("Would you like to order lunch today?")
+
+    .AddButton(new ToastButton("Yes", "action=orderLunch")
+    {
+        ActivationType = ToastActivationType.Background,
+
+        ActivationOptions = new ToastActivationOptions()
+        {
+            AfterActivationBehavior = ToastAfterActivationBehavior.PendingUpdate
+        }
+    })
+
+    .Show(toast =>
+    {
+        toast.Tag = "lunch";
+    });
 ```
 
 
@@ -109,24 +120,19 @@ In response to the user clicking your button, your background task gets triggere
 We strongly recommend **setting the audio to silent** on replacements in response to a button click, since the user is already interacting with your toast.
 
 ```csharp
-// Generate new content
-ToastContent content = new ToastContent()
-{
-    ...
-
-    // We disable audio on all subsequent toasts since they appear right after the user
-    // clicked something, so the user's attention is already captured
-    Audio = new ToastAudio() { Silent = true }
-};
-
-// Create the new notification
-var notif = new ToastNotification(content.GetXml())
-{
-    Tag = "lunch"
-};
-
-// And replace the old one with this one
-ToastNotificationManager.CreateToastNotifier().Show(notif);
+// Show the replacement toast!
+new ToastContentBuilder()
+    .AddText("Your order has been placed!")
+    .AddAudio(new ToastAudio()
+    {
+        // We disable audio on all subsequent toasts since they appear right after the user
+        // clicked something, so the user's attention is already captured
+        Silent = true
+    })
+    .Show(toast =>
+    {
+        toast.Tag = "lunch";
+    });
 ```
 
 

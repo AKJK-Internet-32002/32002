@@ -4954,6 +4954,11 @@
       "source_path": "windows-apps-src/publish/common-questions.md",
       "redirect_url": "/windows/uwp/monetize",
       "redirect_document_id": false
+    },
+    {
+      "source_path": "windows-apps-src/design/shell/tiles-and-notifications/send-local-toast-desktop.md",
+      "redirect_url": "/windows/uwp/design/shell/tiles-and-notifications/send-local-toast",
+      "redirect_document_id": false
     }
   ]
 }

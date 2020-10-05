@@ -32,16 +32,18 @@ To fully understand this topic, the following will be helpful...
 
 ## Step 1: Install NuGet package
 
-Install the [Microsoft.Toolkit.Uwp.Notifications NuGet package](https://www.nuget.org/packages/Microsoft.Toolkit.Uwp.Notifications/). Our code sample will use this package. At the end of the article we'll provide the "plain" code snippets that don't use any NuGet packages. This package allows you to create toast notifications without using XML.
+Install the [Microsoft.Toolkit.Uwp.Notifications NuGet package](https://www.nuget.org/packages/Microsoft.Toolkit.Uwp.Notifications/). Our code sample will use this package. At the end of the article we'll provide the "plain" code snippets that don't use any NuGet packages. This package allows you to create toast notifications without using XML, and also allows Win32 apps to send toasts.
+
+> [!IMPORTANT]
+> .NET Framework Win32 apps that still use packages.config must migrate to PackageReference, otherwise the Windows 10 SDKs won't be referenced correctly. In your project, right-click on "References", and click "Migrate packages.config to PackageReference".
+> 
+> .NET Core 3.0 WPF apps must update to .NET Core 3.1, otherwise the APIs will be absent.
 
 
 ## Step 2: Add namespace declarations
 
-`Windows.UI.Notifications` includes the toast APIs.
-
 ```csharp
-using Windows.UI.Notifications;
-using Microsoft.Toolkit.Uwp.Notifications; // Notifications library
+using Microsoft.Toolkit.Uwp.Notifications;
 ```
 
 
@@ -50,21 +52,16 @@ using Microsoft.Toolkit.Uwp.Notifications; // Notifications library
 We'll use a simple text-based notification reminding a student about the homework they have due today. Construct the notification and schedule it!
 
 ```csharp
-// Construct the content
+// Construct the content and schedule the toast!
 var content = new ToastContentBuilder()
-    .AddToastActivationInfo("itemsDueToday", ToastActivationType.Foreground)
+    .AddToastActivationInfo("itemsDueToday")
     .AddText("ASTR 170B1")
     .AddText("You have 3 items due today!");
-    .GetToastContent();
-
-    
-// Create the scheduled notification
-var toast = new ScheduledToastNotification(content.GetXml(), DateTime.Now.AddSeconds(5));
-
-
-// Add your scheduled toast to the schedule
-ToastNotificationManager.CreateToastNotifier().AddToSchedule(toast);
+    .Schedule(DateTime.Now.AddSeconds(5));
 ```
+
+> [!IMPORTANT]
+> Win32 non-MSIX/sparse apps must use the **Show** method as seen above. If you use **ToastNotificationManager** itself, you will receive an element not found exception. All types of apps can use the Show method and it will work correctly.
 
 
 ## Provide a primary key for your toast
@@ -76,8 +73,16 @@ To see more details on replacing/removing already delivered toast notifications,
 Tag and Group combined act as a composite primary key. Group is the more generic identifier, where you can assign groups like "wallPosts", "messages", "friendRequests", etc. And then Tag should uniquely identify the notification itself from within the group. By using a generic group, you can then remove all notifications from that group by using the [RemoveGroup API](/uwp/api/Windows.UI.Notifications.ToastNotificationHistory#Windows_UI_Notifications_ToastNotificationHistory_RemoveGroup_System_String_).
 
 ```csharp
-toast.Tag = "18365";
-toast.Group = "ASTR 170B1";
+// Construct the content and schedule the toast!
+var content = new ToastContentBuilder()
+    .AddToastActivationInfo("itemsDueToday")
+    .AddText("ASTR 170B1")
+    .AddText("You have 3 items due today!");
+    .Schedule(DateTime.Now.AddSeconds(5), toast =>
+    {
+        toast.Tag = "18365";
+        toast.Group = "ASTR 170B1";
+    });
 ```
 
 
@@ -89,7 +94,7 @@ Then, find your scheduled toast matching the tag (and optionally group) you spec
 
 ```csharp
 // Create the toast notifier
-ToastNotifier notifier = ToastNotificationManager.CreateToastNotifier();
+ToastNotifier notifier = ToastNotificationManagerCompat.CreateToastNotifier();
 
 // Get the list of scheduled toasts that haven't appeared yet
 IReadOnlyList<ScheduledToastNotification> scheduledToasts = notifier.GetScheduledToastNotifications();
@@ -102,6 +107,9 @@ if (toRemove != null)
     notifier.RemoveFromSchedule(toRemove);
 }
 ```
+
+> [!IMPORTANT]
+> Win32 non-MSIX/sparse apps must use the **ToastNotificationManagerCompat** class as seen above. If you use **ToastNotificationManager** itself, you will receive an element not found exception. All types of apps can use the Compat class and it will work correctly.
 
 
 ## Activation handling
