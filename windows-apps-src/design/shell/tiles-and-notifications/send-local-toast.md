@@ -59,7 +59,6 @@ We'll start with a simple text-based notification. Construct the notification co
 ```csharp
 // Construct the content and show the notification!
 new NotificationBuilder()
-    .SetLaunchArgs("picOfHappyCanyon")
     .AddText("Andrew sent you a picture")
     .AddText("Check this out, Happy Canyon in Utah!")
     .Show();
@@ -70,7 +69,6 @@ new NotificationBuilder()
 ```cpp
 // Construct the content and show the notification!
 ref new NotificationBuilder()
-    ->SetLaunchArgs("picOfHappyCanyon")
     ->AddText("Andrew sent you a picture")
     ->AddText("Check this out, Happy Canyon in Utah!")
     ->Show();
@@ -101,7 +99,7 @@ protected override void OnActivated(IActivatedEventArgs e)
     if (e is ToastNotificationActivatedEventArgs toastActivationArgs)
     {
         // Obtain the arguments from the notification
-        string args = toastActivationArgs.Argument;
+        string args = toastActivationArgs.GetArguments();
 
         // Obtain any user input (text boxes, menu selections) from the notification
         ValueSet userInput = toastActivationArgs.UserInput;
@@ -129,7 +127,7 @@ void App::OnActivated(IActivatedEventArgs^ e)
         ToastNotificationActivatedEventArgs^ toastActivationArgs = (ToastNotificationActivatedEventArgs^)e;
 
         // Obtain the arguments from the notification
-        auto args = toastActivationArgs->Argument;
+        auto args = NotificationManager->GetArguments(toastActivationArgs);
 
         // Obtain any user input (text boxes, menu selections) from the notification
         auto userInput = toastActivationArgs->UserInput;
@@ -196,7 +194,7 @@ AppLifecycle.OnActivated += e =>
     if (e is NotificationActivatedEventArgs notifArgs)
     {
         // Obtain the arguments from the notification
-        string args = notifArgs.Argument;
+        NotificationArguments args = notifArgs.Arguments;
 
         // Obtain any user input (text boxes, menu selections) from the notification
         ValueSet userInput = notifArgs.UserInput;
@@ -245,7 +243,7 @@ AppLifecycle.OnActivated += e =>
     if (e is NotificationActivatedEventArgs notifArgs)
     {
         // Obtain the arguments from the notification
-        string args = notifArgs.Argument;
+        NotificationArguments args = notifArgs.Arguments;
 
         // Obtain any user input (text boxes, menu selections) from the notification
         ValueSet userInput = notifArgs.UserInput;
@@ -290,25 +288,21 @@ The uninstall method will clean up any scheduled and current notifications, remo
 
 The first step in making your notifications actionable is to add some launch args to your notification, so that your app can know what to launch when the user clicks the notification (in this case, we're including some information that later tells us we should open a conversation, and we know which specific conversation to open).
 
-We recommend installing the [QueryString.NET](https://www.nuget.org/packages/QueryString.NET/) NuGet package to help construct and parse query strings for your notification arguments, as seen below.
-
 ```csharp
-using Microsoft.QueryStringDotNET; // QueryString.NET
-
 int conversationId = 384928;
 
 // Construct the content
 new NotificationBuilder()
 
     // Arguments returned when user taps body of notification
-    .SetLaunchArgs(new QueryString() // Using QueryString.NET
+    .SetLaunchArgs(new NotificationArguments()
     {
-        { "action", "viewConversation" },
-        { "conversationId", conversationId.ToString() }
-    }.ToString())
+        ["action"] = "viewConversation",
+        ["conversationId"] = conversationId
+    })
 
     .AddText("Andrew sent you a picture")
-    ...
+    Show();
 ```
 
 
@@ -330,8 +324,8 @@ protected override void OnActivated(IActivatedEventArgs e)
     // Handle toast activation
     if (e is ToastNotificationActivatedEventArgs toastActivationArgs)
     {            
-        // Parse the query string (using QueryString.NET)
-        QueryString args = QueryString.Parse(toastActivationArgs.Argument);
+        // Get the arguments
+        NotificationArguments args = toastActivationArgs.GetArguments();
  
         // See what action is being requested 
         switch (args["action"])
@@ -355,7 +349,7 @@ protected override void OnActivated(IActivatedEventArgs e)
             case "viewConversation":
  
                 // The conversation ID retrieved from the toast args
-                int conversationId = int.Parse(args["conversationId"]);
+                int conversationId = args.GetInt("conversationId");
  
                 // If we're already viewing that conversation, do nothing
                 if (rootFrame.Content is ConversationPage && (rootFrame.Content as ConversationPage).ConversationId == conversationId)
@@ -393,15 +387,15 @@ private void AppLifecycle_OnActivated(IActivatedEventArgs e)
         if (e is NotificationActivatedEventArgs notifArgs)
         {
             // Tapping on the top-level header launches with empty args
-            if (notifArgs.Argument.Length == 0)
+            if (notifArgs.Arguments.Count == 0)
             {
                 // Perform a normal launch
                 OpenWindowIfNeeded();
                 return;
             }
 
-            // Parse the query string (using NuGet package QueryString.NET)
-            QueryString args = QueryString.Parse(notifArgs.Argument);
+            // Get the arguments
+            NotificationArguments args = notifArgs.Arguments;
 
             // See what action is being requested 
             switch (args["action"])
@@ -410,7 +404,7 @@ private void AppLifecycle_OnActivated(IActivatedEventArgs e)
                 case "viewImage":
 
                     // The URL retrieved from the toast args
-                    string imageUrl = args["imageUrl"] as string;
+                    string imageUrl = args["imageUrl"];
 
                     // Make sure we have a window open and in foreground
                     OpenWindowIfNeeded();
@@ -533,23 +527,23 @@ new NotificationBuilder()
     .AddInputTextBox("tbReply", placeHolderContent: "Type a response")
 
     // Reference the text box's ID in order to place this button next to the text box
-    .AddButton("tbReply", "Reply", ToastActivationType.Background, new QueryString()
+    .AddButton("tbReply", "Reply", ToastActivationType.Background, new NotificationArguments()
     {
-        { "action", "reply" },
-        { "conversationId", conversationId.ToString() }
-    }.ToString(), imageUri: new Uri("Assets/Reply.png", UriKind.Relative))
+        ["action"] = "reply",
+        ["conversationId"] = conversationId
+    }, imageUri: new Uri("Assets/Reply.png", UriKind.Relative))
 
-    .AddButton("Like", ToastActivationType.Background, new QueryString()
+    .AddButton("Like", ToastActivationType.Background, new NotificationArguments()
     {
-        { "action", "like" },
-        { "conversationId", conversationId.ToString() }
-    }.ToString())
+        ["action"] = "like",
+        ["conversationId"] = conversationId
+    })
 
-    .AddButton("View", ToastActivationType.Foreground, new QueryString()
+    .AddButton("View", ToastActivationType.Foreground, new NotificationArguments()
     {
-        { "action", "viewImage" },
-        { "imageUrl", image.ToString() }
-    }.ToString())
+        ["action"] = "viewImage",
+        ["imageUrl"] = image.ToString()
+    })
     
     .Show();
     
@@ -609,7 +603,7 @@ protected override async void OnBackgroundActivated(BackgroundActivatedEventArgs
             var details = args.TaskInstance.TriggerDetails as ToastNotificationActionTriggerDetail;
             if (details != null)
             {
-                string arguments = details.Argument;
+                var arguments = details.GetArguments();
                 var userInput = details.UserInput;
 
                 // Perform tasks
