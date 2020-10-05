@@ -186,6 +186,10 @@ ToastNotificationManager.History.Clear();
 IReadOnlyList<ToastNotification> notifs = ToastNotificationManager.History.GetHistory();
 ```
 
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+Not applicable
+
 #### [Toolkit 7](#tab/toolkit-7)
 
 ```csharp
@@ -303,6 +307,14 @@ BadgeUpdateManager.CreateBadgeUpdaterForApplication().Update(new BadgeNotificati
 BadgeUpdateManager.CreateBadgeUpdaterForApplication().Clear();
 ```
 
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+TODO
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+TODO
+
 #### [Reunion](#tab/reunion)
 
 ```csharp
@@ -333,6 +345,14 @@ BadgeUpdateManager.CreateBadgeUpdaterForApplication().StartPeriodicUpdate(uri, P
 // Stopping updates
 BadgeUpdateManager.CreateBadgeUpdaterForApplication().StopPeriodicUpdate();
 ```
+
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+TODO
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+TODO
 
 #### [Reunion](#tab/reunion)
 
@@ -371,6 +391,14 @@ doc.LoadXml(xml);
 TileUpdateManager.CreateTileUpdaterForApplication().Update(new TileNotification(doc));
 ```
 
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+TODO
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+TODO
+
 #### [Reunion](#tab/reunion)
 
 ```csharp
@@ -389,6 +417,14 @@ new TileContentBuilder()
 ```csharp
 TileUpdateManager.CreateTileUpdaterForApplication().Clear();
 ```
+
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+TODO
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+TODO
 
 #### [Reunion](#tab/reunion)
 
@@ -416,6 +452,14 @@ TileUpdateManager.CreateTileUpdaterForApplication().EnableNotificationQueueForSq
 // Enable for wide
 TileUpdateManager.CreateTileUpdaterForApplication().EnableNotificationQueueForWide310x150(true);
 ```
+
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+TODO
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+TODO
 
 #### [Reunion](#tab/reunion)
 
@@ -460,6 +504,14 @@ doc.LoadXml(xml);
 TileUpdateManager.CreateTileUpdaterForSecondaryTile("tileId").Update(new TileNotification(doc));
 ```
 
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+TODO
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+TODO
+
 #### [Reunion](#tab/reunion)
 
 ```csharp
@@ -488,6 +540,14 @@ TileUpdateManager.CreateTileUpdaterForSecondaryTile("tileId").EnableNotification
 // Enable for wide
 TileUpdateManager.CreateTileUpdaterForSecondaryTile("tileId").EnableNotificationQueueForWide310x150(true);
 ```
+
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+TODO
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+TODO
 
 #### [Reunion](#tab/reunion)
 
@@ -525,6 +585,14 @@ SecondaryTile tile = new SecondaryTile(
 
 await tile.RequestCreateAsync();
 ```
+
+#### [Toolkit 6.1](#tab/toolkit-6-1)
+
+TODO
+
+#### [Toolkit 7](#tab/toolkit-7)
+
+TODO
 
 #### [Reunion](#tab/reunion)
 
