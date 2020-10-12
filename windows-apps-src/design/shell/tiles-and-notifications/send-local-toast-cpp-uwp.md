@@ -9,7 +9,7 @@ ms.topic: article
 keywords: windows 10, uwp, send toast notifications, notifications, send notifications, toast notifications, how to, quickstart, getting started, code sample, walkthrough, cpp, c++, uwp
 ms.localizationpriority: medium
 ---
-# Send a local toast notification
+# Send a local toast notification from C++ UWP apps
 
 
 A toast notification is a message that an app can construct and deliver to the user while they are not currently inside your app. This Quickstart walks you through the steps to create, deliver, and display a Windows 10 toast notification with the new adaptive templates and interactive actions. These actions are demonstrated through a local notification, which is the simplest notification to implement.
