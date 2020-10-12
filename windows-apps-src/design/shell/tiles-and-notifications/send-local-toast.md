@@ -33,19 +33,10 @@ Install the [Microsoft.Toolkit.Uwp.Notifications NuGet package 7.0 preview](http
 
 ## Step 2: Add namespace declarations
 
-#### [C#](#tab/csharp)
-
 ```csharp
 using Microsoft.Toolkit.Uwp.Notifications;
 ```
 
-#### [C++](#tab/cpp)
-
-```cpp
-using namespace Microsoft::Toolkit::Uwp::Notifications;
-```
-
----
 
 ## Step 3: Send a toast
 
@@ -54,8 +45,6 @@ In Windows 10, your toast notification content is described using an adaptive la
 We'll start with a simple text-based notification. Construct the notification content (using the Notifications library), and show the notification!
 
 <img alt="Simple text notification" src="images/send-toast-01.png" width="364"/>
-
-#### [C#](#tab/csharp)
 
 ```csharp
 // Construct the content and show the toast!
@@ -66,18 +55,6 @@ new ToastContentBuilder()
     .Show();
 ```
 
-#### [C++](#tab/cpp)
-
-```cpp
-// Construct the content and show the toast!
-(ref new ToastContentBuilder())
-    ->AddText("Andrew sent you a picture")
-    ->AddText("Check this out, Happy Canyon in Utah!")
-    ->Show();
-```
-
----
-
 > [!IMPORTANT]
 > Win32 non-MSIX/sparse apps must use the **Show** method as seen above. If you use **ToastNotificationManager** itself, you will receive an element not found exception. All types of apps can use the Show method and it will work correctly.
 
@@ -87,7 +64,7 @@ new ToastContentBuilder()
 The steps for handling activation differ for UWP, Win32 MSIX, and Win32 or sparse apps.
 
 
-#### [UWP](#tab/uwp/csharp)
+#### [UWP](#tab/uwp)
 
 When the user clicks your notification (or a button on the notification with foreground activation), your app's **App.xaml.cs** **OnActivated** will be invoked.
 
@@ -109,37 +86,6 @@ protected override void OnActivated(IActivatedEventArgs e)
     }
 }
 ```
-
-> [!IMPORTANT]
-> You must initialize your frame and activate your window just like your **OnLaunched** code. **OnLaunched is NOT called if the user clicks on your toast**, even if your app was closed and is launching for the first time. We often recommend combining **OnLaunched** and **OnActivated** into your own `OnLaunchedOrActivated` method since the same initialization needs to occur in both.
-
-#### [UWP](#tab/uwp/cpp)
-
-When the user clicks your notification (or a button on the notification with foreground activation), your app's **App.xaml.cpp** **OnActivated** will be invoked.
-
-**App.xaml.cpp**
-
-```csharp
-void App::OnActivated(IActivatedEventArgs^ e)
-{
-    // Handle notification activation
-    if (e->Kind == ActivationKind::ToastNotification)
-    {
-        ToastNotificationActivatedEventArgs^ toastActivationArgs = (ToastNotificationActivatedEventArgs^)e;
-
-        // Obtain the arguments from the notification
-        auto args = toastActivationArgs->Argument;
-
-        // Obtain any user input (text boxes, menu selections) from the notification
-        auto userInput = toastActivationArgs->UserInput;
- 
-        // TODO: Show the corresponding content
-    }
-}
-```
-
-> [!IMPORTANT]
-> You must initialize your frame and activate your window just like your **OnLaunched** code. **OnLaunched is NOT called if the user clicks on your toast**, even if your app was closed and is launching for the first time. We often recommend combining **OnLaunched** and **OnActivated** into your own `OnLaunchedOrActivated` method since the same initialization needs to occur in both.
 
 > [!IMPORTANT]
 > You must initialize your frame and activate your window just like your **OnLaunched** code. **OnLaunched is NOT called if the user clicks on your toast**, even if your app was closed and is launching for the first time. We often recommend combining **OnLaunched** and **OnActivated** into your own `OnLaunchedOrActivated` method since the same initialization needs to occur in both.
