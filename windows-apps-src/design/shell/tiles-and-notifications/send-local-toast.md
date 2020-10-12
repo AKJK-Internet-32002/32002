@@ -14,9 +14,6 @@ ms.localizationpriority: medium
 
 A toast notification is a message that an app can construct and deliver to the user while they are not currently inside your app. This Quickstart walks you through the steps to create, deliver, and display a Windows 10 toast notification with the new adaptive templates and interactive actions. These actions are demonstrated through a local notification, which is the simplest notification to implement.
 
-> [!IMPORTANT]
-> Win32 applications (including packaged [MSIX](/windows/msix/desktop/source-code-overview) apps, apps that use [sparse packages](/windows/apps/desktop/modernize/grant-identity-to-nonpackaged-apps) to obtain package identity, and classic non-packaged Win32 apps) have different steps for sending notifications and handling activation. Please see the [Win32 apps](toast-desktop-apps.md) documentation to learn how to implement toasts.
-
 > **Important APIs**: [ToastNotification Class](/uwp/api/Windows.UI.Notifications.ToastNotification), [ToastNotificationActivatedEventArgs Class](/uwp/api/Windows.ApplicationModel.Activation.ToastNotificationActivatedEventArgs)
 
 
