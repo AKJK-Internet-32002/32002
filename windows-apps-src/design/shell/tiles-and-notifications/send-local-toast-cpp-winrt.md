@@ -48,7 +48,7 @@ Then, ensure your `pch.h` file includes `#include <unknwn.h>`.
 
 ## Step 2: Copy compat library code
 
-Copy the [DesktopNotificationManagerCompat.h](https://raw.githubusercontent.com/WindowsNotifications/desktop-toasts/master/CPP-WRL/DesktopToastsCppWrlApp/DesktopNotificationManagerCompat.h) and [DesktopNotificationManagerCompat.cpp](https://raw.githubusercontent.com/WindowsNotifications/desktop-toasts/master/CPP-WRL/DesktopToastsCppWrlApp/DesktopNotificationManagerCompat.cpp) file from GitHub into your project. The compat library abstracts much of the complexity of desktop notifications. The following instructions require the compat library.
+Copy the [DesktopNotificationManagerCompat.h](https://raw.githubusercontent.com/WindowsNotifications/desktop-toasts/aleader/toolkit-7/CPP-WINRT/DesktopToastsCppWinRtApp/DesktopNotificationManagerCompat.h) and [DesktopNotificationManagerCompat.cpp](https://raw.githubusercontent.com/WindowsNotifications/desktop-toasts/aleader/toolkit-7/CPP-WINRT/DesktopToastsCppWinRtApp/DesktopNotificationManagerCompat.cpp) file from GitHub into your project. The compat library abstracts much of the complexity of desktop notifications. The following instructions require the compat library.
 
 
 ## Step 3: Add namespace declarations
@@ -160,29 +160,29 @@ Then, **in your app's startup code**, subscribe to the OnActivated event.
 
 ```cpp
 // Listen to notification activation
-DesktopNotificationManagerCompat::OnActivated = [](e)
+DesktopNotificationManagerCompat::OnActivated([](DesktopNotificationActivatedEventArgsCompat e)
 {
     // Obtain the arguments from the notification
-    std::wstring args = e.Argument;
+    std::wstring args = e.Argument();
 
     // Obtain any user input (text boxes, menu selections) from the notification
-    auto userInput = e.UserInput;
+    auto userInput = e.UserInput();
 
     // TODO: Show the corresponding content
-};
+});
 ```
 
 When the user clicks any of your notifications (or a button on the notification), the following will happen...
 
 **If your app is currently running**...
 
-1. The **DesktopNotificationManagerCompat.OnActivated** event will be invoked on a background thread.
+1. The **DesktopNotificationManagerCompat::OnActivated** event will be invoked on a background thread.
 
 **If your app is currently closed**...
 
-1. Your app's EXE will be launched and `DesktopNotificationManagerCompat.WasCurrentProcessToastActivated()` will return true to indicate the process was started due to a modern activation and that the event handler will soon be invoked.
+1. Your app's EXE will be launched with a command line argument equal to `TOAST_ACTIVATED_LAUNCH_ARG` to indicate the process was started due to a modern activation and that the event handler will soon be invoked.
 1. Then, the 
- **DesktopNotificationManagerCompat.OnActivated** event will be invoked on a background thread.
+ **DesktopNotificationManagerCompat::OnActivated** event will be invoked on a background thread.
 
 
 #### [Sparse/unpackaged](#tab/sparse+unpackaged)
@@ -191,28 +191,28 @@ When the user clicks any of your notifications (or a button on the notification)
 
 **If your app is currently running**...
 
-1. The **DesktopNotificationManagerCompat.OnActivated** event will be invoked on a background thread.
+1. The **DesktopNotificationManagerCompat::OnActivated** event will be invoked on a background thread.
 
 **If your app is currently closed**...
 
-1. Your app's EXE will be launched and `DesktopNotificationManagerCompat.WasCurrentProcessToastActivated()` will return true to indicate the process was started due to a modern activation and that the event handler will soon be invoked.
+1. Your app's EXE will be launched with a command line argument equal to `TOAST_ACTIVATED_LAUNCH_ARG` to indicate the process was started due to a modern activation and that the event handler will soon be invoked.
 1. Then, the 
- **DesktopNotificationManagerCompat.OnActivated** event will be invoked on a background thread.
+ **DesktopNotificationManagerCompat::OnActivated** event will be invoked on a background thread.
 
 **In your app's startup code**, subscribe to the OnActivated event.
 
 ```cpp
 // Listen to notification activation
-DesktopNotificationManagerCompat::OnActivated = [](e)
+DesktopNotificationManagerCompat::OnActivated([](DesktopNotificationActivatedEventArgsCompat e)
 {
     // Obtain the arguments from the notification
-    std::wstring args = e.Argument;
+    std::wstring args = e.Argument();
 
     // Obtain any user input (text boxes, menu selections) from the notification
-    auto userInput = e.UserInput;
+    auto userInput = e.UserInput();
 
     // TODO: Show the corresponding content
-};
+});
 ```
 
 ---
@@ -238,14 +238,111 @@ doc.LoadXml(L"<toast>\
 doc.DocumentElement().SetAttribute(L"launch", L"action=viewConversation&conversationId=9813")
 ```
 
+Then, in your OnActivatedHandler...
+
+```cpp
+DesktopNotificationManagerCompat::OnActivated([](DesktopNotificationActivatedEventArgsCompat e)
+    {
+        if (e.Argument()._Starts_with(L"action=like"))
+        {
+            sendBasicToast(L"Sent like!");
+
+            if (!_hasStarted)
+            {
+                exit(0);
+            }
+        }
+
+        else if (e.Argument()._Starts_with(L"action=reply"))    
+        {
+            std::wstring msg = e.UserInput().Lookup(L"tbReply").c_str();
+
+            sendBasicToast(L"Sent reply! Reply: " + msg);
+
+            if (!_hasStarted)
+            {
+                exit(0);
+            }
+        }
+
+        else
+        {
+            if (!_hasStarted)
+            {
+                if (e.Argument()._Starts_with(L"action=viewConversation"))
+                {
+                    std::cout << "Launched from toast, opening the conversation!\n\n";
+                }
+
+                start();
+            }
+            else
+            {
+                showWindow();
+
+                if (e.Argument()._Starts_with(L"action=viewConversation"))
+                {
+                    std::cout << "\n\nOpening the conversation!\n\nEnter a number to continue: ";
+                }
+                else
+                {
+                    std::wcout << L"\n\nToast activated!\n - Argument: " + e.Argument() + L"\n\nEnter a number to continue: ";
+                }
+            }
+        }
+    });
+
+void showWindow()
+{
+    HWND hwnd = GetConsoleWindow();
+    WINDOWPLACEMENT place = { sizeof(WINDOWPLACEMENT) };
+    GetWindowPlacement(hwnd, &place);
+    switch (place.showCmd)
+    {
+    case SW_SHOWMAXIMIZED:
+        ShowWindow(hwnd, SW_SHOWMAXIMIZED);
+        break;
+    case SW_SHOWMINIMIZED:
+        ShowWindow(hwnd, SW_RESTORE);
+        break;
+    default:
+        ShowWindow(hwnd, SW_NORMAL);
+        break;
+    }
+    SetWindowPos(0, HWND_TOP, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+    SetForegroundWindow(hwnd);
+}
+```
+
+To properly support being launched while your app is closed, in your main function, you'll want to determine whether you're being launched from a toast or not. If launched from a toast, you'll receive an argument equal to `TOAST_ACTIVATED_LAUNCH_ARG`. In that case, you should stop performing any normal launch activation, and allow your **OnActivated** code to handle launching.
+
+```cpp
+int main(int argc, char* argv[])
+{
+    // Register and listen for toast activation
+    DesktopNotificationManagerCompat::Register(L"Microsoft.SampleCppWinRtApp", L"Sample C++ WinRT App", L"C:\\MyIcon.png");
+    DesktopNotificationManagerCompat::OnActivated(ToastActivated);
+
+    if (argc >= 2 && strcmp(argv[1], TOAST_ACTIVATED_LAUNCH_ARG) == 0)
+    {
+        // Was launched from a toast, OnActivated will be called and we'll decide whether to start the app or exit
+        std::cin.ignore();   
+    }
+
+    else
+    {
+        start();
+    }
+}
+```
 
 
 ## Adding images
 
 You can add rich content to notifications. We'll add an inline image and a profile (app logo override) image.
 
-> [!NOTE]
-> Images can be used from the app's package, the app's local storage, or from the web. As of the Fall Creators Update, web images can be up to 3 MB on normal connections and 1 MB on metered connections. On devices not yet running the Fall Creators Update, web images must be no larger than 200 KB.
+> [!IMPORTANT]
+> Http images are only supported in MSIX/sparse apps that have the internet capability in their manifest. Win32 non-MSIX/sparse apps do not support http images; you must download the image to your local app data and reference it locally.
 
 <img alt="Toast with images" src="images/send-toast-02.png" width="364"/>
 
@@ -263,7 +360,7 @@ doc.LoadXml(L"<toast>\
 </toast>");
 
 // Set image URL
-doc.SelectSingleNode(L"//image").SetAttribute(L"src", L"https://picsum.photos/360/202?image=883");
+doc.SelectSingleNode(L"//image").as<XmlElement>().SetAttribute(L"src", L"https://picsum.photos/360/202?image=883");
 
 ...
 ```
@@ -277,24 +374,40 @@ You can add buttons and inputs to make your notifications interactive. Buttons c
 <img alt="Toast with images and buttons" src="images/send-toast-03.png" width="364"/>
 
 ```cpp
-// Construct the content
-(ref new ToastContentBuilder())
-    ...
+// Construct the toast template
+XmlDocument doc;
+doc.LoadXml(L"<toast>\
+    <visual>\
+        <binding template=\"ToastGeneric\">\
+            <text></text>\
+            <text></text>\
+        </binding>\
+    </visual>\
+    <actions>\
+        <input\
+            id=\"tbReply\"\
+            type=\"text\"\
+            placeHolderContent=\"Type a reply\"/>\
+        <action\
+            content=\"Reply\"\
+            activationType=\"background\"/>\
+        <action\
+            content=\"Like\"\
+            activationType=\"background\"/>\
+        <action\
+            content=\"View\"\
+            activationType=\"background\"/>\
+    </actions>\
+</toast>");
 
-    // Text box for replying
-    ->AddInputTextBox("tbReply", "Type a response")
+doc.SelectSingleNode(L"//action[1]").as<XmlElement>().SetAttribute(L"arguments", L"action=reply&conversationId=9813");
+doc.SelectSingleNode(L"//action[2]").as<XmlElement>().SetAttribute(L"arguments", L"action=like&conversationId=9813");
+doc.SelectSingleNode(L"//action[3]").as<XmlElement>().SetAttribute(L"arguments", L"action=viewImage&imageUrl=https://picsum.photos/364/202?image=883");
 
-    // Reference the text box's ID in order to place this button next to the text box
-    ->AddButton("tbReply", "Reply", "action=reply&conversationId=39382" ref new Uri("Assets/Reply.png", UriKind::Relative))
-
-    ->AddButton("Like", ToastActivationType::Background, "action=like&conversationId=39382")
-
-    ->AddButton("View", ToastActivationType::Foreground, "action=view&conversationId=39382")
-    
-    ->Show();
+...
 ```
 
-The activation of foreground buttons are handled in the same way as the main toast body (your App.xaml.cpp OnActivated will be called).
+The activation of foreground buttons are handled in the same way as the main toast body (your OnActivated will be called).
 
 
 
@@ -303,24 +416,6 @@ The activation of foreground buttons are handled in the same way as the main toa
 For Win32 applications, background activations are handled the same as foreground activations (your **OnActivated** event handler will be triggered). You can choose to not show any UI and close your app after handling activation.
 
 
-## Set an expiration time
-
-In Windows 10, all toast notifications go in Action Center after they are dismissed or ignored by the user, so users can look at your notification after the popup is gone.
-
-However, if the message in your notification is only relevant for a period of time, you should set an expiration time on the toast notification so the users do not see stale information from your app. For example, if a promotion is only valid for 12 hours, set the expiration time to 12 hours. In the code below, we set the expiration time to be 2 days.
-
-> [!NOTE]
-> The default and maximum expiration time for local toast notifications is 3 days.
-
-```cpp
-// Create toast content and show the toast!
-(ref new ToastContentBuilder())
-    ->AddText("Expires in 2 days...")
-    ->Show(toast =>
-    {
-        toast->ExpirationTime = DateTime::Now->AddDays(2);
-    });
-```
 
 
 ## Provide a primary key for your toast
@@ -332,14 +427,15 @@ To see more details on replacing/removing already delivered toast notifications,
 Tag and Group combined act as a composite primary key. Group is the more generic identifier, where you can assign groups like "wallPosts", "messages", "friendRequests", etc. And then Tag should uniquely identify the notification itself from within the group. By using a generic group, you can then remove all notifications from that group by using the [RemoveGroup API](https://docs.microsoft.com/uwp/api/Windows.UI.Notifications.ToastNotificationHistory#Windows_UI_Notifications_ToastNotificationHistory_RemoveGroup_System_String_).
 
 ```cpp
-// Create toast content and show the toast!
-(ref new ToastContentBuilder())
-    ->AddText("New post on your wall!")
-    ->Show(toast =>
-    {
-        toast.Tag = "18365";
-        toast.Group = "wallPosts";
-    });
+// Construct the notification
+ToastNotification notif{ doc };
+
+// Set tag/group
+notif.Tag(L"18345");
+notif.Group(L"wallPosts");
+
+// And send it!
+DesktopNotificationManagerCompat::CreateToastNotifier().Show(notif);
 ```
 
 
