@@ -320,6 +320,8 @@
               href: shell/tiles-and-notifications/send-local-toast.md
             - name: C++ UWP apps
               href: shell/tiles-and-notifications/send-local-toast-cpp-uwp.md
+            - name: C++ WinRT apps
+              href: shell/tiles-and-notifications/send-local-toast-cpp-winrt.md
             - name: C++ WRL apps
               href: shell/tiles-and-notifications/send-local-toast-desktop-cpp-wrl.md
         - name: Toast content

@@ -10,10 +10,10 @@ ms.localizationpriority: medium
 ---
 # Send a local toast notification from Win32 C++ WRL apps
 
-Win32 apps (including packaged [MSIX](/windows/msix/desktop/source-code-overview) apps, apps that use [sparse packages](/windows/apps/desktop/modernize/grant-identity-to-nonpackaged-apps) to obtain package identity, and classic non-packaged Win32 apps) can send interactive toast notifications just like Windows apps. However, there are a few special steps for Win32 apps due to the different activation schemes and the potential lack of package identity if you're not using MSIX or a sparse package.
+All Win32 apps can send toast notifications, regardless of whether you're using [MSIX](/windows/msix/desktop/source-code-overview) or [sparse packages](/windows/apps/desktop/modernize/grant-identity-to-nonpackaged-apps). However, there are a few special steps for Win32 apps due to the different activation schemes and the potential lack of package identity if you're not using MSIX or a sparse package.
 
 > [!IMPORTANT]
-> If you're writing a UWP app, please see the [UWP documentation](send-local-toast.md). For other Win32 languages, please see [Win32 C#](send-local-toast-desktop.md).
+> If you're writing a C# app, please see the [C# documentation](send-local-toast.md). For other C++ languages, please see [C++ UWP](send-local-toast-cpp-uwp.md) and [C++ WinRT](send-local-toast-cpp-winrt.md).
 
 
 ## Step 1: Enable the Windows 10 SDK
