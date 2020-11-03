@@ -224,6 +224,8 @@ The uninstall method will clean up any scheduled and current notifications, remo
 
 ## Activation in depth
 
+Handling activation is actually a relatively **complex** step. This is because you have to support deep linking into specific locations of your app when your user clicks on a notification, regardless of whether your app is open or closed and regardless of whether that content has already been loaded into memory. **This might require refactoring your app** to properly support activation.
+
 The first step in making your notifications actionable is to add some launch args to your notification, so that your app can know what to launch when the user clicks the notification (in this case, we're including some information that later tells us we should open a conversation, and we know which specific conversation to open).
 
 ```csharp
@@ -242,7 +244,7 @@ new ToastContentBuilder()
 ```
 
 
-Here are some more complex examples of handling activation...
+Then, when the user clicks on your notification, here are some more complex examples of how to handle activation and perform the corresponding action...
 
 
 #### [UWP](#tab/uwp)
