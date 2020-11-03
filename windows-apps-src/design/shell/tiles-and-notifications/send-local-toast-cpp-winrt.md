@@ -14,7 +14,8 @@ ms.localizationpriority: medium
 
 A toast notification is a message that an app can construct and deliver to the user while they are not currently inside your app. This quickstart walks you through the steps to create, deliver, and display a Windows 10 toast notification using rich content and interactive actions. These quickstart uses local notifications, which are the simplest notification to implement.
 
-> **Important APIs**: [ToastNotification Class](/uwp/api/Windows.UI.Notifications.ToastNotification), [ToastNotificationActivatedEventArgs Class](/uwp/api/Windows.ApplicationModel.Activation.ToastNotificationActivatedEventArgs)
+> [!IMPORTANT]
+> If you're writing a C# app, please see the [C# documentation](send-local-toast.md). For other C++ languages, please see [C++ UWP](send-local-toast-cpp-uwp.md) and [C++ WRL](send-local-toast-desktop-cpp-wrl.md).
 
 
 
@@ -23,7 +24,7 @@ A toast notification is a message that an app can construct and deliver to the u
 If you aren't using WinRT in your project yet...
 
 1. **Install the [Microsoft.Windows.CppWinRT NuGet package](https://www.nuget.org/packages/Microsoft.Windows.CppWinRT/)**: This package allows you to call Windows 10 APIs from your Win32 C++ app.
-1. **Ensure your target Windows SDK is 10.0.17134.0 or greater**: Go to project property **General** \> **Windows SDK Version**, and select **All Configurations** and **All Platforms**. Ensure that **Windows SDK Version** is set to 10.0.17134.0 (Windows 10, version 1803) or greater.
+1. **Ensure your target Windows SDK is 10.0.17134.0 or greater**: In your project's properties, go to **General** \> **Windows SDK Version**, and select **All Configurations** and **All Platforms**. Ensure that **Windows SDK Version** is set to 10.0.17134.0 (Windows 10, version 1803) or greater (note that the "latest installed" option doesn't work, you have to pick a specific version).
 1. **Ensure you've configured `pch.h`.**
 
 ### Configuring pch.h
@@ -53,10 +54,17 @@ Copy the [DesktopNotificationManagerCompat.h](https://raw.githubusercontent.com/
 
 ## Step 3: Add namespace declarations
 
+In whichever file you're looking to send notifications from, add the following declarations.
+
 ```cpp
+#include "pch.h"
+#include <winrt/Windows.Data.Xml.Dom.h>
+#include <winrt/Windows.UI.Notifications.h>
 #include "DesktopNotificationManagerCompat.h"
 
-using namespace DesktopNotificationManagerCompat;
+using namespace winrt;
+using namespace Windows::Data::Xml::Dom;
+using namespace Windows::UI::Notifications;
 ```
 
 
@@ -81,7 +89,7 @@ DesktopNotificationManagerCompat::Register(L"CompanyName.ProductName", L"Display
 
 In Windows 10, your toast notification content is described using an adaptive language that allows great flexibility with how your notification looks. See the [toast content documentation](adaptive-interactive-toasts.md) for more information.
 
-We'll start with a simple text-based notification. Construct the notification content (using the Notifications library), and show the notification!
+We'll start with a simple text-based notification. Construct the notification content and show the notification!
 
 <img alt="Simple text notification" src="images/send-toast-01.png" width="364"/>
 
@@ -156,7 +164,7 @@ First, in your **Package.appxmanifest**, add:
  </Package>
 ```
 
-Then, **in your app's startup code**, subscribe to the OnActivated event.
+Then, **in your app's startup code**, **after** calling Register, subscribe to the OnActivated event.
 
 ```cpp
 // Listen to notification activation
@@ -199,7 +207,7 @@ When the user clicks any of your notifications (or a button on the notification)
 1. Then, the 
  **DesktopNotificationManagerCompat::OnActivated** event will be invoked on a background thread.
 
-**In your app's startup code**, subscribe to the OnActivated event.
+**In your app's startup code**, **after** calling Register, subscribe to the OnActivated event.
 
 ```cpp
 // Listen to notification activation
@@ -214,6 +222,21 @@ DesktopNotificationManagerCompat::OnActivated([](DesktopNotificationActivatedEve
     // TODO: Show the corresponding content
 });
 ```
+
+---
+
+
+## Step 7: Handling uninstallation
+
+#### [MSIX](#tab/msix)
+
+You don't need to do anything! When MSIX apps are uninstalled, all notifications and any other related resources are automatically cleaned up.
+
+#### [Sparse/unpackaged](#tab/sparse+unpackaged)
+
+If your app has an uninstaller, in your uninstaller you should call `DesktopNotificationManagerCompat::Uninstall();`. If your app is a "portable app" without an installer, consider calling this method upon app exit unless you have notifications that are meant to persist after your app is closed.
+
+The uninstall method will clean up any scheduled and current notifications, remove any associated registry values, and remove any associated temporary files that were created by the library.
 
 ---
 
@@ -235,10 +258,10 @@ doc.LoadXml(L"<toast>\
 </toast>");
 
 // Set launch arguments
-doc.DocumentElement().SetAttribute(L"launch", L"action=viewConversation&conversationId=9813")
+doc.DocumentElement().SetAttribute(L"launch", L"action=viewConversation&conversationId=9813");
 ```
 
-Then, in your OnActivatedHandler...
+Then, in your OnActivated handler...
 
 ```cpp
 DesktopNotificationManagerCompat::OnActivated([](DesktopNotificationActivatedEventArgsCompat e)
@@ -456,7 +479,7 @@ Here's an example of what a messaging app should do…
 To learn about clearing all notifications or removing specific notifications, see [Quickstart: Managing toast notifications in action center (XAML)](https://docs.microsoft.com/previous-versions/windows/apps/dn631260(v=win.10)).
 
 ```cpp
-DesktopNotificationManagerCompat::History.Clear();
+DesktopNotificationManagerCompat::History().Clear();
 ```
 
 
