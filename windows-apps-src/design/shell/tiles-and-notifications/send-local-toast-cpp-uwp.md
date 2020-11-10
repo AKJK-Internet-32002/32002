@@ -41,6 +41,8 @@ We'll start with a simple text-based notification. Construct the notification co
 ```cpp
 // Construct the content and show the toast!
 (ref new ToastContentBuilder())
+    ->AddArgument("action", "viewConversation")
+    ->AddArgument("conversationId", 9813)
     ->AddText("Andrew sent you a picture")
     ->AddText("Check this out, Happy Canyon in Utah!")
     ->Show();
@@ -62,7 +64,7 @@ void App::OnActivated(IActivatedEventArgs^ e)
         ToastNotificationActivatedEventArgs^ toastActivationArgs = (ToastNotificationActivatedEventArgs^)e;
 
         // Obtain the arguments from the notification
-        auto args = toastActivationArgs->Argument;
+        ToastArguments^ args = ToastArguments::Parse(toastActivationArgs->Argument);
 
         // Obtain any user input (text boxes, menu selections) from the notification
         auto userInput = toastActivationArgs->UserInput;
@@ -85,7 +87,8 @@ The first step in making your notifications actionable is to add some launch arg
 (ref new ToastContentBuilder())
 
     // Arguments returned when user taps body of notification
-    ->AddToastActivationInfo("action=viewConversation&conversationId=38392")
+    ->AddArgument("action", "viewConversation")
+    ->AddArgument("conversationId", 9813)
 
     ->AddText("Andrew sent you a picture")
     ->Show();
@@ -127,17 +130,33 @@ You can add buttons and inputs to make your notifications interactive. Buttons c
 ```cpp
 // Construct the content
 (ref new ToastContentBuilder())
+    ->AddArgument("conversationId", 9813)
     ...
 
     // Text box for replying
     ->AddInputTextBox("tbReply", "Type a response")
 
-    // Reference the text box's ID in order to place this button next to the text box
-    ->AddButton("tbReply", "Reply", "action=reply&conversationId=39382" ref new Uri("Assets/Reply.png", UriKind::Relative))
+    // Buttons
+    ->AddButton((ref new ToastButton())
+        ->SetContent("Reply")
+        ->SetImageUri(ref new Uri("Assets/Reply.png", UriKind::Relative))
+        ->SetTextBoxId("tbReply") // Reference text box ID to place this next to the text box
+        ->AddArgument("action", "reply")
+        ->SetBackgroundActivation())
 
-    ->AddButton("Like", ToastActivationType::Background, "action=like&conversationId=39382")
+    ->AddButton((ref new ToastButton())
+        ->SetContent("Like")
+        ->AddArgument("action", "like")
+        ->SetBackgroundActivation())
 
-    ->AddButton("View", ToastActivationType::Foreground, "action=view&conversationId=39382")
+    ->AddButton((ref new ToastButton())
+        ->SetContent("Like")
+        ->AddArgument("action", "like")
+        ->SetBackgroundActivation())
+
+    ->AddButton((ref new ToastButton())
+        ->SetContent("View")
+        ->AddArgument("action", "view"))
     
     ->Show();
 ```

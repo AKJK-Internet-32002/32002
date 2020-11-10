@@ -324,6 +324,10 @@
               href: shell/tiles-and-notifications/send-local-toast-cpp-winrt.md
             - name: C++ WRL apps
               href: shell/tiles-and-notifications/send-local-toast-desktop-cpp-wrl.md
+            - name: React Native apps
+              href: shell/tiles-and-notifications/send-local-toast-react-native.md
+            - name: Other apps
+              href: shell/tiles-and-notifications/send-local-toast-other-apps.md
         - name: Toast content
           items:
             - name: Content

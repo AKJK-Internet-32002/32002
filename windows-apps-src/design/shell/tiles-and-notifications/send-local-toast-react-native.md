@@ -1,15 +1,15 @@
 ---
-Description: Learn how to send a local toast notification from C# apps and handle the user clicking the toast.
-title: Send a local toast notification from C# apps
+Description: Learn how to send a local toast notification from React Native and handle the user clicking the toast.
+title: Send a local toast notification from React Native
 ms.assetid: E9AB7156-A29E-4ED7-B286-DA4A6E683638
-label: Send a local toast notification from C# apps
+label: Send a local toast notification from React Native
 template: detail.hbs
 ms.date: 05/19/2017
 ms.topic: article
-keywords: windows 10, uwp, send toast notifications, notifications, send notifications, toast notifications, how to, quickstart, getting started, code sample, walkthrough, c#, csharp, win32, uwp
+keywords: windows 10, uwp, send toast notifications, notifications, send notifications, toast notifications, how to, quickstart, getting started, code sample, walkthrough, react native, windows, javascript
 ms.localizationpriority: medium
 ---
-# Send a local toast notification from C# apps
+# Send a local toast notification from React Native
 
 A toast notification is a message that an app can construct and deliver to the user while they are not currently inside your app. This quickstart walks you through the steps to create, deliver, and display a Windows 10 toast notification using rich content and interactive actions. These quickstart uses local notifications, which are the simplest notification to implement.
 
@@ -46,8 +46,9 @@ We'll start with a simple text-based notification. Construct the notification co
 ```csharp
 // Construct the content and show the toast!
 new ToastContentBuilder()
-    .AddArgument("action", "viewConversation")
-    .AddArgument("conversationId", 9813)
+    .AddToastActivationInfo(new ToastArguments()
+        .Set("action", "openConversation")
+        .Set("conversationId", 9813))
     .AddText("Andrew sent you a picture")
     .AddText("Check this out, Happy Canyon in Utah!")
     .Show();
@@ -233,9 +234,10 @@ int conversationId = 384928;
 // Construct the content and show the toast!
 new ToastContentBuilder()
 
-    // Arguments returned when user taps body of notification or a button
-    .AddArgument("action", "viewConversation")
-    .AddArgument("conversationId", conversationId)
+    // Arguments returned when user taps body of notification
+    .AddToastActivationInfo(new ToastArguments()
+        .Set("action", "viewConversation")
+        .Set("conversationId", conversationId))
 
     .AddText("Andrew sent you a picture")
     .Show();
@@ -450,36 +452,33 @@ int conversationId = 384928;
 
 // Construct the content
 new ToastContentBuilder()
-    .AddArgument("conversationId", conversationId)
     ...
 
     // Text box for replying
     .AddInputTextBox("tbReply", placeHolderContent: "Type a response")
 
-    // Buttons
-    .AddButton(new ToastButton()
-        .SetContent("Reply")
-        .SetImageUri(new Uri("Assets/Reply.png", UriKind.Relative))
-        .SetTextBoxId("tbReply") // Reference text box ID to place this next to the text box
-        .AddArgument("action", "reply")
-        .SetBackgroundActivation())
+    // Reference the text box's ID in order to place this button next to the text box
+    .AddButton(
+        "tbReply",
+        "Reply",
+        ToastActivationType.Background,
+        new ToastArguments()
+            .Set("action", "reply")
+            .Set("conversationId", conversationId),
+        imageUri: new Uri("Assets/Reply.png", UriKind.Relative))
 
-    .AddButton(new ToastButton()
-        .SetContent("Like")
-        .AddArgument("action", "like")
-        .SetBackgroundActivation())
+    .AddButton("Like", ToastActivationType.Background, new ToastArguments()
+        .Set("action", "like")
+        .Set("conversationId", conversationId))
 
-    .AddButton(new ToastButton()
-        .SetContent("View")
-        .AddArgument("action", "viewImage")
-        .AddArgument("imageUrl", image.ToString()))
+    .AddButton("View", ToastActivationType.Foreground, new ToastArguments()
+        .Set("action", "viewImage")
+        .Set("imageUrl", image.ToString()))
     
     .Show();
 ```
 
 The activation of foreground buttons are handled in the same way as the main toast body (your App.xaml.cs OnActivated will be called).
-
-Note that arguments added to the top-level toast (like conversation ID) will also be returned when the buttons are clicked, as long as buttons use the AddArgument API as seen above (if you custom assign arguments on a button, the top-level arguments won't be included).
 
 
 
