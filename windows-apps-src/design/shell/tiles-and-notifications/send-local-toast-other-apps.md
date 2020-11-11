@@ -113,3 +113,10 @@ ToastNotificationManager::CreateToastNotifier(L"MyPublisher.MyApp").Show(notif);
 ## Step 4: Handling activation
 
 Your COM activator will be activated when your notification is clicked.
+
+
+## More details
+
+### AUMID restrictions
+
+The AUMID should be at most 129 characters long. If the AUMID is more than 129 characters long, scheduled toast notifications won't work - you'll get the following exception when adding a scheduled notification: *The data area passed to a system call is too small. (0x8007007A)*.
