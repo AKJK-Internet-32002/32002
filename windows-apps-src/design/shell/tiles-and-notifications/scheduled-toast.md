@@ -53,8 +53,8 @@ We'll use a simple text-based notification reminding a student about the homewor
 
 ```csharp
 // Construct the content and schedule the toast!
-var content = new ToastContentBuilder()
-    .AddToastActivationInfo("itemsDueToday")
+new ToastContentBuilder()
+    .AddArgument("action", "viewItemsDueToday")
     .AddText("ASTR 170B1")
     .AddText("You have 3 items due today!");
     .Schedule(DateTime.Now.AddSeconds(5));
@@ -74,8 +74,8 @@ Tag and Group combined act as a composite primary key. Group is the more generic
 
 ```csharp
 // Construct the content and schedule the toast!
-var content = new ToastContentBuilder()
-    .AddToastActivationInfo("itemsDueToday")
+new ToastContentBuilder()
+    .AddArgument("action", "viewItemsDueToday")
     .AddText("ASTR 170B1")
     .AddText("You have 3 items due today!");
     .Schedule(DateTime.Now.AddSeconds(5), toast =>
