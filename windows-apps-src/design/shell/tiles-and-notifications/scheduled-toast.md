@@ -3,7 +3,7 @@ Description: Learn how to schedule a local toast notification to appear at a lat
 title: Schedule a toast notification
 label: Schedule a toast notification
 template: detail.hbs
-ms.date: 04/09/2020
+ms.date: 11/17/2020
 ms.topic: article
 keywords: windows 10, uwp, scheduled toast notification, scheduledtoastnotification, how to, quickstart, getting started, code sample, walkthrough
 ms.localizationpriority: medium

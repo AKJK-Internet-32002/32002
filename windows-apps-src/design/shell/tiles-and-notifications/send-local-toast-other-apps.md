@@ -4,7 +4,7 @@ title: Send a local toast notification from other types of unpackaged apps
 ms.assetid: E9AB7156-A29E-4ED7-B286-DA4A6E683638
 label: Send a local toast notification from other types of unpackaged apps
 template: detail.hbs
-ms.date: 05/19/2017
+ms.date: 11/17/2020
 ms.topic: article
 keywords: windows 10, send toast notifications, notifications, send notifications, toast notifications, how to, quickstart, getting started, code sample, walkthrough, other types of apps, unpackaged
 ms.localizationpriority: medium

@@ -4,7 +4,7 @@ title: Send a local toast notification from React Native
 ms.assetid: E9AB7156-A29E-4ED7-B286-DA4A6E683638
 label: Send a local toast notification from React Native
 template: detail.hbs
-ms.date: 05/19/2017
+ms.date: 11/17/2020
 ms.topic: article
 keywords: windows 10, uwp, send toast notifications, notifications, send notifications, toast notifications, how to, quickstart, getting started, code sample, walkthrough, react native, windows, javascript
 ms.localizationpriority: medium
@@ -13,8 +13,6 @@ ms.localizationpriority: medium
 
 A toast notification is a message that an app can construct and deliver to the user while they are not currently inside your app. This quickstart walks you through the steps to create, deliver, and display a Windows 10 toast notification using rich content and interactive actions. These quickstart uses local notifications, which are the simplest notification to implement.
 
-> [!IMPORTANT]
-> If you're writing a C++ app, please see the [C++ UWP](send-local-toast-cpp-uwp.md), [C++ WinRT](send-local-toast-cpp-winrt.md), or [C++ WRL](send-local-toast-desktop-cpp-wrl.md) documentation.
 
 
 
