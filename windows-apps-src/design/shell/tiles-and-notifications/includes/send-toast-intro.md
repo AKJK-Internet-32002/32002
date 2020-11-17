@@ -1,0 +1,3 @@
+A toast notification is a message that an app can construct and deliver to the user while they are not currently inside your app. This quickstart walks you through the steps to create, deliver, and display a Windows 10 toast notification using rich content and interactive actions. This quickstart uses local notifications, which are the simplest notification to implement.
+
+<img src="../images/toast-notification.png" width="595" alt="Screenshot of a toast notification"/>

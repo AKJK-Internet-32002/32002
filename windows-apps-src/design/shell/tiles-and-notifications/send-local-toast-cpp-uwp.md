@@ -11,16 +11,15 @@ ms.localizationpriority: medium
 ---
 # Send a local toast notification from C++ UWP apps
 
-
-A toast notification is a message that an app can construct and deliver to the user while they are not currently inside your app. This Quickstart walks you through the steps to create, deliver, and display a Windows 10 toast notification with the new adaptive templates and interactive actions. These actions are demonstrated through a local notification, which is the simplest notification to implement.
-
-> **Important APIs**: [ToastNotification Class](/uwp/api/Windows.UI.Notifications.ToastNotification), [ToastNotificationActivatedEventArgs Class](/uwp/api/Windows.ApplicationModel.Activation.ToastNotificationActivatedEventArgs)
+[!INCLUDE [intro](includes/send-toast-intro.md)]
 
 
 
 ## Step 1: Install NuGet package
 
-Install the [Microsoft.Toolkit.Uwp.Notifications NuGet package 7.0 preview](https://www.nuget.org/packages/aleader.Microsoft.Toolkit.Uwp.Notifications/). Our code sample will use this package. This package allows you to create toast notifications without using XML.
+[!INCLUDE [nuget package](includes/nuget-package.md)]
+
+Our code sample will use this package. This package allows you to create toast notifications without using XML.
 
 
 ## Step 2: Add namespace declarations
@@ -32,11 +31,7 @@ using namespace Microsoft::Toolkit::Uwp::Notifications;
 
 ## Step 3: Send a toast
 
-In Windows 10, your toast notification content is described using an adaptive language that allows great flexibility with how your notification looks. See the [toast content documentation](adaptive-interactive-toasts.md) for more information.
-
-We'll start with a simple text-based notification. Construct the notification content (using the Notifications library), and show the notification!
-
-<img alt="Simple text notification" src="images/send-toast-01.png" width="364"/>
+[!INCLUDE [basic toast intro](includes/send-toast-basic-toast-intro.md)]
 
 ```cpp
 // Construct the content and show the toast!
@@ -74,8 +69,7 @@ void App::OnActivated(IActivatedEventArgs^ e)
 }
 ```
 
-> [!IMPORTANT]
-> You must initialize your frame and activate your window just like your **OnLaunched** code. **OnLaunched is NOT called if the user clicks on your toast**, even if your app was closed and is launching for the first time. We often recommend combining **OnLaunched** and **OnActivated** into your own `OnLaunchedOrActivated` method since the same initialization needs to occur in both.
+[!INCLUDE [OnLaunched warning](includes/onlaunched-warning.md)]
 
 
 ## Activation in depth
@@ -100,8 +94,7 @@ The first step in making your notifications actionable is to add some launch arg
 
 You can add rich content to notifications. We'll add an inline image and a profile (app logo override) image.
 
-> [!NOTE]
-> Images can be used from the app's package, the app's local storage, or from the web. As of the Fall Creators Update, web images can be up to 3 MB on normal connections and 1 MB on metered connections. On devices not yet running the Fall Creators Update, web images must be no larger than 200 KB.
+[!INCLUDE [images note](includes/images-note.md)]
 
 <img alt="Toast with images" src="images/send-toast-02.png" width="364"/>
 
