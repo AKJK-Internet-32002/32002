@@ -11,7 +11,9 @@ ms.localizationpriority: medium
 ---
 # Send a local toast notification from C# apps
 
-A toast notification is a message that an app can construct and deliver to the user while they are not currently inside your app. This quickstart walks you through the steps to create, deliver, and display a Windows 10 toast notification using rich content and interactive actions. These quickstart uses local notifications, which are the simplest notification to implement.
+A toast notification is a message that an app can construct and deliver to the user while they are not currently inside your app. This quickstart walks you through the steps to create, deliver, and display a Windows 10 toast notification using rich content and interactive actions. This quickstart uses local notifications, which are the simplest notification to implement.
+
+<img src="images/toast-notification.png" width="595" alt="Screenshot of a toast notification"/>
 
 > [!IMPORTANT]
 > If you're writing a C++ app, please see the [C++ UWP](send-local-toast-cpp-uwp.md), [C++ WinRT](send-local-toast-cpp-winrt.md), or [C++ WRL](send-local-toast-desktop-cpp-wrl.md) documentation.
@@ -20,7 +22,9 @@ A toast notification is a message that an app can construct and deliver to the u
 
 ## Step 1: Install NuGet package
 
-Install the [Microsoft.Toolkit.Uwp.Notifications NuGet package 7.0 preview](https://www.nuget.org/packages/aleader.Microsoft.Toolkit.Uwp.Notifications/). Our code sample will use this package. At the end of the article we'll provide the "plain" code snippets that don't use any NuGet packages. This package allows you to create toast notifications without using XML, and also allows Win32 apps to send toasts.
+Within your Visual Studio solution, right click your project, click *"Manage NuGet Packages..."*, ensure *"Include prerelease*" is checked, and search for and install the `Microsoft.Toolkit.Uwp.Notifications` [NuGet package](https://www.nuget.org/packages/Microsoft.Toolkit.Uwp.Notifications/) (install the 7.0 preview).
+
+Our code sample will use this package. This package allows you to create toast notifications without using XML, and also allows Win32 apps to send toasts.
 
 > [!IMPORTANT]
 > .NET Framework Win32 apps that still use packages.config must migrate to PackageReference, otherwise the Windows 10 SDKs won't be referenced correctly. In your project, right-click on "References", and click "Migrate packages.config to PackageReference".
