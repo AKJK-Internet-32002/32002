@@ -94,7 +94,7 @@ Then, find your scheduled toast matching the tag (and optionally group) you spec
 
 ```csharp
 // Create the toast notifier
-ToastNotifier notifier = ToastNotificationManagerCompat.CreateToastNotifier();
+ToastNotifierCompat notifier = ToastNotificationManagerCompat.CreateToastNotifier();
 
 // Get the list of scheduled toasts that haven't appeared yet
 IReadOnlyList<ScheduledToastNotification> scheduledToasts = notifier.GetScheduledToastNotifications();
