@@ -107,7 +107,7 @@ doc.LoadXml(L"<toast>\
 
 // Populate with text and values
 doc.SelectSingleNode(L"//text[1]").InnerText(L"Andrew sent you a picture");
-doc.SelectSingleNode(L"//text[2]").InnerText(L"Check this out, Happy Canyon in Utah!");
+doc.SelectSingleNode(L"//text[2]").InnerText(L"Check this out, The Enchantments in Washington!");
 
 // Construct the notification
 ToastNotification notif{ doc };

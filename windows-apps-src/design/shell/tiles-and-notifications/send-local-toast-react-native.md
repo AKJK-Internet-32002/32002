@@ -48,7 +48,7 @@ new ToastContentBuilder()
         .Set("action", "openConversation")
         .Set("conversationId", 9813))
     .AddText("Andrew sent you a picture")
-    .AddText("Check this out, Happy Canyon in Utah!")
+    .AddText("Check this out, The Enchantments in Washington!")
     .Show();
 ```
 
@@ -619,7 +619,7 @@ using Windows.Data.Xml.Dom;
 
 // In a real app, these would be initialized with actual data
 string title = "Andrew sent you a picture";
-string content = "Check this out, Happy Canyon in Utah!";
+string content = "Check this out, The Enchantments in Washington!";
 string image = "http://blogs.msdn.com/cfs-filesystemfile.ashx/__key/communityserver-blogs-components-weblogfiles/00-00-01-71-81-permanent/2727.happycanyon1_5B00_1_5D00_.jpg";
 string logo = "ms-appdata:///local/Andrew.jpg";
  

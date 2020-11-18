@@ -39,7 +39,7 @@ using namespace Microsoft::Toolkit::Uwp::Notifications;
     ->AddArgument("action", "viewConversation")
     ->AddArgument("conversationId", 9813)
     ->AddText("Andrew sent you a picture")
-    ->AddText("Check this out, Happy Canyon in Utah!")
+    ->AddText("Check this out, The Enchantments in Washington!")
     ->Show();
 ```
 

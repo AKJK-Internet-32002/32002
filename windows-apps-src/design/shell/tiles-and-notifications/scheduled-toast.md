@@ -32,12 +32,9 @@ To fully understand this topic, the following will be helpful...
 
 ## Step 1: Install NuGet package
 
-Install the [Microsoft.Toolkit.Uwp.Notifications NuGet package](https://www.nuget.org/packages/Microsoft.Toolkit.Uwp.Notifications/). Our code sample will use this package. At the end of the article we'll provide the "plain" code snippets that don't use any NuGet packages. This package allows you to create toast notifications without using XML, and also allows Win32 apps to send toasts.
+[!INCLUDE [nuget package](includes/nuget-package.md)]
 
-> [!IMPORTANT]
-> .NET Framework Win32 apps that still use packages.config must migrate to PackageReference, otherwise the Windows 10 SDKs won't be referenced correctly. In your project, right-click on "References", and click "Migrate packages.config to PackageReference".
-> 
-> .NET Core 3.0 WPF apps must update to .NET Core 3.1, otherwise the APIs will be absent.
+[!INCLUDE [nuget package .NET warnings](includes/nuget-package-dotnet-warnings.md)]
 
 
 ## Step 2: Add namespace declarations
@@ -119,7 +116,7 @@ See the [send a local toast](send-local-toast.md) docs to learn more about handl
 
 ## Adding actions, inputs, and more
 
-See the [send a local toast](send-local-toast.md) docs to learn more about advanced topics like actions and inputs. Actions and inputs work the same in local toasts as they do in scheduled toasts.
+See the [send a local toast](send-local-toast.md) docs to learn more about advanced topics like actions and inputs. Actions and inputs work the same in scheduled toasts as they do in local toasts.
 
 
 ## Resources
