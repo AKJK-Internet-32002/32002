@@ -6,18 +6,8 @@ ms.date: 07/05/2018
 ms.topic: article
 keywords: windows 10, uwp
 ms.localizationpriority: medium
-dev_langs:
-  - csharp
-  - vb
-  - cppwinrt
-  - cpp
 ---
 # Handle file activation
-
-**Important APIs**
-
--   [**Windows.ApplicationModel.Activation.FileActivatedEventArgs**](/uwp/api/Windows.ApplicationModel.Activation.FileActivatedEventArgs)
--   [**Windows.UI.Xaml.Application.OnFileActivated**](/uwp/api/windows.ui.xaml.application.onfileactivated)
 
 Your app can register to become the default handler for a certain file type. Both Windows desktop applications and Universal Windows Platform (UWP) apps can register to be a default file handler. If the user chooses your app as the default handler for a certain file type, your app will be activated when that type of file is launched.
 
@@ -27,7 +17,16 @@ These steps show how to register for a custom file type, .alsdk, and how to acti
 
 > **Note**  In UWP apps, certain URIs and file extensions are reserved for use by built-in apps and the operating system. Attempts to register your app with a reserved URI or file extension will be ignored. For more information, see [Reserved file and URI scheme names](reserved-uri-scheme-names.md).
 
-## Step 1: Specify the extension point in the package manifest
+## Step 1: Install NuGet package
+
+Install the [Reunion NuGet package](https://www.nuget.org/packages/aleader.Reunion/). This package allows you receive activation, and for Win32, allows you to register file associations.
+
+> [!IMPORTANT]
+> .NET Framework Win32 apps that still use packages.config must migrate to PackageReference, otherwise the Windows 10 SDKs won't be referenced correctly. In your project, right-click on "References", and click "Migrate packages.config to PackageReference".
+> 
+> .NET Core 3.0 WPF apps must update to .NET Core 3.1, otherwise the APIs will be absent.
+
+## Step 2: Specify the extension point in the package manifest
 
 The app receives activation events only for the file extensions listed in the package manifest. Here's how you indicate that your app handles the files with the `.alsdk` extension.
 
@@ -64,7 +63,7 @@ The steps above add an [**Extension**](/uwp/schemas/appxpackage/appxmanifestsche
       </Extensions>
 ```
 
-## Step 2: Add the proper icons
+## Step 3: Add the proper icons
 
 Apps that become the default for a file type have their icons displayed in various places throughout the system. For example, these icons are shown in:
 
@@ -75,44 +74,22 @@ Apps that become the default for a file type have their icons displayed in vario
 
 Include a 44x44 icon with your project so that your logo can appear in those locations. Match the look of the app tile logo and use your app's background color rather than making the icon transparent. Have the logo extend to the edge without padding it. Test your icons on white backgrounds. See [Guidelines for tile and icon assets](../design/style/app-icons-and-logos.md) for more details about icons.
 
-## Step 3: Handle the activated event
+## Step 4: Handle the activated event
 
-The [**OnFileActivated**](/uwp/api/windows.ui.xaml.application.onfileactivated) event handler receives all file activation events.
+When an associated file is launched by the user, your app will be launched and **AppLifecycle.GetActivatedEventArgs** will provide the **FileActivatedEventArgs**.
 
 ```csharp
-protected override void OnFileActivated(FileActivatedEventArgs args)
+IActivatedEventArgs args = AppLifecycle.GetActivatedEventArgs();
+
+if (args is FileActivatedEventArgs fileArgs)
 {
-       // TODO: Handle file activation
-       // The number of files received is args.Files.Size
-       // The name of the first file is args.Files[0].Name
+    // Get the list of files that were launched
+    IList<IStorageItem> files = fileArgs.Files;
+
+    // TODO: Display the files
 }
 ```
 
-```vb
-Protected Overrides Sub OnFileActivated(ByVal args As Windows.ApplicationModel.Activation.FileActivatedEventArgs)
-      ' TODO: Handle file activation
-      ' The number of files received is args.Files.Size
-      ' The name of the first file is args.Files(0).Name
-End Sub
-```
-
-```cppwinrt
-void App::OnFileActivated(Windows::ApplicationModel::Activation::FileActivatedEventArgs const& args)
-{
-    // TODO: Handle file activation.
-    auto numberOfFilesReceived{ args.Files().Size() };
-    auto nameOfTheFirstFile{ args.Files().GetAt(0).Name() };
-}
-```
-
-```cpp
-void App::OnFileActivated(Windows::ApplicationModel::Activation::FileActivatedEventArgs^ args)
-{
-    // TODO: Handle file activation
-    // The number of files received is args->Files->Size
-    // The name of the first file is args->Files->GetAt(0)->Name
-}
-```
 
 > [!NOTE]
 > When launched via File Contract, make sure that Back button takes the user back to the screen that launched the app and not to the app's previous content.
