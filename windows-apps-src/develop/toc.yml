@@ -1352,6 +1352,8 @@
             - name: Launch the default app for a file
               href: ../launch-resume/launch-the-default-app-for-a-file.md
             - name: Handle file activation
+              href: ../launch-resume/handle-file-activation-current.md
+            - name: Handle file activation (proposed)
               href: ../launch-resume/handle-file-activation.md
         - name: Auto-launching with AutoPlay
           href: ../launch-resume/auto-launching-with-autoplay.md
