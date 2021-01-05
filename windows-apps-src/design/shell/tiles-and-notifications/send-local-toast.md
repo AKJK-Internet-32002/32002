@@ -139,7 +139,7 @@ Then, **in your app's startup code** (App.xaml.cs OnStartup for WPF), subscribe 
 ---
 
 
-## Step 5: Handling uninstallation
+## Step 4: Handling uninstallation
 
 #### [UWP](#tab/uwp)
 
