@@ -1,12 +1,12 @@
 ---
-Description: Learn how to send a local toast notification from C# apps and handle the user clicking the toast.
+description: Learn how to send a local toast notification from C# apps and handle the user clicking the toast.
 title: Send a local toast notification from C# apps
 ms.assetid: E9AB7156-A29E-4ED7-B286-DA4A6E683638
 label: Send a local toast notification from C# apps
 template: detail.hbs
-ms.date: 11/17/2020
+ms.date: 05/19/2017
 ms.topic: article
-keywords: windows 10, uwp, send toast notifications, notifications, send notifications, toast notifications, how to, quickstart, getting started, code sample, walkthrough, c#, csharp, win32, uwp
+keywords: windows 10, uwp, send toast notifications, notifications, send notifications, toast notifications, how to, quickstart, getting started, code sample, walkthrough, c#, csharp, win32
 ms.localizationpriority: medium
 ---
 # Send a local toast notification from C# apps
@@ -17,7 +17,6 @@ ms.localizationpriority: medium
 > If you're writing a C++ app, please see the [C++ UWP](send-local-toast-cpp-uwp.md), [C++ WinRT](send-local-toast-cpp-winrt.md), or [C++ WRL](send-local-toast-desktop-cpp-wrl.md) documentation.
 
 
-
 ## Step 1: Install NuGet package
 
 [!INCLUDE [nuget package](includes/nuget-package.md)]
@@ -26,19 +25,13 @@ ms.localizationpriority: medium
 
 Our code sample will use this package. This package allows you to create toast notifications without using XML, and also allows Win32 apps to send toasts.
 
-## Step 2: Add namespace declarations
 
-```csharp
-using Microsoft.Toolkit.Uwp.Notifications;
-```
-
-
-## Step 3: Send a toast
+## Step 2: Send a toast
 
 [!INCLUDE [basic toast intro](includes/send-toast-basic-toast-intro.md)]
 
 ```csharp
-// Construct the content and show the toast!
+// Requires Microsoft.Toolkit.Uwp.Notifications NuGet package
 new ToastContentBuilder()
     .AddArgument("action", "viewConversation")
     .AddArgument("conversationId", 9813)
@@ -47,18 +40,19 @@ new ToastContentBuilder()
     .Show();
 ```
 
-> [!IMPORTANT]
-> Win32 non-MSIX/sparse apps must use the **Show** method as seen above. If you use **ToastNotificationManager** itself, you will receive an element not found exception. All types of apps can use the Show method and it will work correctly.
+Try running this code and you should see the notification appear!
 
 
-## Step 4: Handling activation
+## Step 3: Handling activation
+
+After showing a notification, you likely need to handle the user clicking the notification (whether that means bringing up specific content after the user clicks it, opening your app in general, or performing an action when the user clicks the notification).
 
 The steps for handling activation differ for UWP, Win32 MSIX, and Win32 or sparse apps.
 
 
 #### [UWP](#tab/uwp)
 
-When the user clicks your notification (or a button on the notification with foreground activation), your app's **App.xaml.cs** **OnActivated** will be invoked.
+When the user clicks your notification (or a button on the notification with foreground activation), your app's **App.xaml.cs** **OnActivated** will be invoked, and the arguments you added will be returned.
 
 **App.xaml.cs**
 
@@ -160,197 +154,6 @@ You don't need to do anything! When MSIX apps are uninstalled, all notifications
 If your app has an uninstaller, in your uninstaller you should call `ToastNotificationManagerCompat.Uninstall();`. If your app is a "portable app" without an installer, consider calling this method upon app exit unless you have notifications that are meant to persist after your app is closed.
 
 The uninstall method will clean up any scheduled and current notifications, remove any associated registry values, and remove any associated temporary files that were created by the library.
-
----
-
-
-
-## Activation in depth
-
-Handling activation is actually a relatively **complex** step. This is because you have to support deep linking into specific locations of your app when your user clicks on a notification, regardless of whether your app is open or closed and regardless of whether that content has already been loaded into memory. **This might require refactoring your app** to properly support activation.
-
-The first step in making your notifications actionable is to add some launch args to your notification, so that your app can know what to launch when the user clicks the notification (in this case, we're including some information that later tells us we should open a conversation, and we know which specific conversation to open).
-
-```csharp
-int conversationId = 384928;
-
-// Construct the content and show the toast!
-new ToastContentBuilder()
-
-    // Arguments returned when user taps body of notification or a button
-    .AddArgument("action", "viewConversation")
-    .AddArgument("conversationId", conversationId)
-
-    .AddText("Andrew sent you a picture")
-    .Show();
-```
-
-
-Then, when the user clicks on your notification, here are some more complex examples of how to handle activation and perform the corresponding action...
-
-
-#### [UWP](#tab/uwp)
-
-**App.xaml.cs**
-
-```csharp
-protected override void OnActivated(IActivatedEventArgs e)
-{
-    // Get the root frame
-    Frame rootFrame = Window.Current.Content as Frame;
- 
-    // TODO: Initialize root frame just like in OnLaunched
- 
-    // Handle toast activation
-    if (e is ToastNotificationActivatedEventArgs toastActivationArgs)
-    {            
-        // Parse the arguments
-        ToastArguments args = ToastArguments.Parse(toastActivationArgs.Argument);
- 
-        // See what action is being requested 
-        switch (args["action"])
-        {
-            // Open the image
-            case "viewImage":
- 
-                // The URL retrieved from the toast args
-                string imageUrl = args["imageUrl"];
- 
-                // If we're already viewing that image, do nothing
-                if (rootFrame.Content is ImagePage && (rootFrame.Content as ImagePage).ImageUrl.Equals(imageUrl))
-                    break;
- 
-                // Otherwise navigate to view it
-                rootFrame.Navigate(typeof(ImagePage), imageUrl);
-                break;
-                             
- 
-            // Open the conversation
-            case "viewConversation":
- 
-                // The conversation ID retrieved from the toast args
-                int conversationId = args.GetInt("conversationId");
- 
-                // If we're already viewing that conversation, do nothing
-                if (rootFrame.Content is ConversationPage && (rootFrame.Content as ConversationPage).ConversationId == conversationId)
-                    break;
- 
-                // Otherwise navigate to view it
-                rootFrame.Navigate(typeof(ConversationPage), conversationId);
-                break;
-        }
- 
-        // If we're loading the app for the first time, place the main page on
-        // the back stack so that user can go back after they've been
-        // navigated to the specific page
-        if (rootFrame.BackStack.Count == 0)
-            rootFrame.BackStack.Add(new PageStackEntry(typeof(MainPage), null, null));
-    }
- 
-    // TODO: Handle other types of activation
- 
-    // Ensure the current window is active
-    Window.Current.Activate();
-}
-```
-
-#### [Win32 MSIX / normal / sparse](#tab/win32-msix+win32)
-
-```csharp
-// Listen to activation
-ToastNotificationManagerCompat.OnActivated += e =>
-{
-    Application.Current.Dispatcher.Invoke(delegate
-    {
-        // Tapping on the top-level header launches with empty args
-        if (e.Argument.Length == 0)
-        {
-            // Perform a normal launch
-            OpenWindowIfNeeded();
-            return;
-        }
-
-        // Parse the arguments
-        ToastArguments args = ToastArguments.Parse(e.Argument);
-
-        // See what action is being requested 
-        switch (args["action"])
-        {
-            // Open the image
-            case "viewImage":
-
-                // The URL retrieved from the toast args
-                string imageUrl = args["imageUrl"];
-
-                // Make sure we have a window open and in foreground
-                OpenWindowIfNeeded();
-
-                // And then show the image
-                (App.Current.Windows[0] as MainWindow).ShowImage(imageUrl);
-
-                break;
-
-            // Background: Quick reply to the conversation
-            case "reply":
-
-                // Get the response the user typed
-                string msg = e.UserInput["tbReply"] as string;
-
-                // And send this message
-                SendMessage(msg);
-
-                // If there's no windows open, exit the app
-                if (App.Current.Windows.Count == 0)
-                {
-                    Application.Current.Shutdown();
-                }
-
-                break;
-        }
-    });
-};
-
-private void OpenWindowIfNeeded()
-{
-    // Make sure we have a window open (in case user clicked toast while app closed)
-    if (App.Current.Windows.Count == 0)
-    {
-        new MainWindow().Show();
-    }
-
-    // Activate the window, bringing it to focus
-    App.Current.Windows[0].Activate();
-
-    // And make sure to maximize the window too, in case it was currently minimized
-    App.Current.Windows[0].WindowState = WindowState.Normal;
-}
-```
-
-To properly support being launched while your app is closed, for WPF apps, in your `App.xaml`, **remove** the `StartupUri` property. Then, in your `App.xaml.cs` file, you'll want to override **OnStartup** method to determine whether you're being launched from a toast or not. If launched from a toast, `ToastNotificationManagerCompat.WasCurrentProcessToastActivated()` will return true. In that case, you should stop performing any normal launch activation, and allow your **OnActivated** code handle launching.
-
-```csharp
-protected override async void OnStartup(StartupEventArgs e)
-{
-    // Register activator
-    ToastNotificationManagerCompat.OnActivated += Notification_OnActivated;
-
-    // If launched from a toast
-    if (ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
-    {
-        // Our OnActivated callback code will run later
-        // and will show a window if necessary.
-    }
-
-    else
-    {
-        // Show the window
-        // In App.xaml, be sure to remove the StartupUri so that a window doesn't
-        // get created by default, since we're creating windows ourselves (and sometimes we
-        // don't want to create a window if handling a background activation).
-        new MainWindow().Show();
-    }
-}
-```
 
 ---
 
@@ -554,88 +357,6 @@ To learn about clearing all notifications or removing specific notifications, se
 ToastNotificationManagerCompat.History.Clear();
 ```
 
-
-## Plain code snippets
-
-If you're not using the Notifications library from NuGet, you can manually construct your XML as seen below to create a [ToastNotification](/uwp/api/Windows.UI.Notifications.ToastNotification).
-
-```csharp
-using Windows.UI.Notifications;
-using Windows.Data.Xml.Dom;
-
-// In a real app, these would be initialized with actual data
-string title = "Andrew sent you a picture";
-string content = "Check this out, The Enchantments in Washington!";
-string image = "http://blogs.msdn.com/cfs-filesystemfile.ashx/__key/communityserver-blogs-components-weblogfiles/00-00-01-71-81-permanent/2727.happycanyon1_5B00_1_5D00_.jpg";
-string logo = "ms-appdata:///local/Andrew.jpg";
- 
-// TODO: all values need to be XML escaped
- 
-// Construct the visuals of the toast
-string toastVisual =
-$@"<visual>
-  <binding template='ToastGeneric'>
-    <text>{title}</text>
-    <text>{content}</text>
-    <image src='{image}'/>
-    <image src='{logo}' placement='appLogoOverride' hint-crop='circle'/>
-  </binding>
-</visual>";
-
-// In a real app, these would be initialized with actual data
-int conversationId = 384928;
- 
-// Generate the arguments we'll be passing in the toast
-string argsReply = $"action=reply&conversationId={conversationId}";
-string argsLike = $"action=like&conversationId={conversationId}";
-string argsView = $"action=viewImage&imageUrl={Uri.EscapeDataString(image)}";
- 
-// TODO: all args need to be XML escaped
- 
-string toastActions =
-$@"<actions>
- 
-  <input
-      type='text'
-      id='tbReply'
-      placeHolderContent='Type a response'/>
- 
-  <action
-      content='Reply'
-      arguments='{argsReply}'
-      activationType='background'
-      imageUri='Assets/Reply.png'
-      hint-inputId='tbReply'/>
- 
-  <action
-      content='Like'
-      arguments='{argsLike}'
-      activationType='background'/>
- 
-  <action
-      content='View'
-      arguments='{argsView}'/>
- 
-</actions>";
-
-// Now we can construct the final toast content
-string argsLaunch = $"action=viewConversation&conversationId={conversationId}";
- 
-// TODO: all args need to be XML escaped
- 
-string toastXmlString =
-$@"<toast launch='{argsLaunch}'>
-    {toastVisual}
-    {toastActions}
-</toast>";
- 
-// Parse to XML
-XmlDocument toastXml = new XmlDocument();
-toastXml.LoadXml(toastXmlString);
- 
-// Generate toast
-var toast = new ToastNotification(toastXml);
-```
 
 
 ## Resources
